@@ -10,6 +10,7 @@ import { CalendarIcon, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { DayContent } from "react-day-picker";
 
 interface CalendarTask {
   id: string;
@@ -98,6 +99,16 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
     return format(date, "EEEE, MMMM d, yyyy");
   };
 
+  // Custom day content renderer compatible with react-day-picker types
+  const CustomDayContent = (props: React.ComponentProps<typeof DayContent>) => {
+    return (
+      <div className="relative w-full h-full">
+        <div>{props.date.getDate()}</div>
+        {renderTaskIndicators(props.date)}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -116,12 +127,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
                 onSelect={setDate}
                 selected={date}
                 components={{
-                  DayContent: (props) => (
-                    <div className="relative w-full h-full">
-                      <div>{props.day.day}</div>
-                      {renderTaskIndicators(props.day.date)}
-                    </div>
-                  ),
+                  DayContent: CustomDayContent,
                 }}
                 className={cn("p-3 pointer-events-auto")}
               />
@@ -143,12 +149,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
               }}
               className={cn("p-3 pointer-events-auto rounded-md border")}
               components={{
-                DayContent: (props) => (
-                  <div className="relative w-full h-full">
-                    <div>{props.day.day}</div>
-                    {renderTaskIndicators(props.day.date)}
-                  </div>
-                ),
+                DayContent: CustomDayContent,
               }}
             />
           </div>
