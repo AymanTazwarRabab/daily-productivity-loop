@@ -5,6 +5,7 @@ import DailyPlan from '@/components/DailyPlan';
 import FocusTimer from '@/components/FocusTimer';
 import DailyReflection from '@/components/DailyReflection';
 import UserStats from '@/components/UserStats';
+import TaskCalendar from '@/components/TaskCalendar';
 import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
@@ -40,6 +41,14 @@ const Index = () => {
     });
   };
 
+  const handleCalendarTaskAdd = (task: any) => {
+    toast({
+      title: "Calendar task added",
+      description: `Task "${task.title}" scheduled for ${task.date.toLocaleDateString()}`,
+      duration: 2000,
+    });
+  };
+
   const handleSessionComplete = () => {
     setFocusSessions(prev => prev + 1);
     toast({
@@ -68,6 +77,11 @@ const Index = () => {
               date={date} 
               onTaskComplete={handleTaskComplete}
               onAddTask={handleAddTask}
+            />
+            
+            <TaskCalendar 
+              onAddTask={handleCalendarTaskAdd}
+              onTaskComplete={handleTaskComplete}
             />
             
             <DailyReflection 
