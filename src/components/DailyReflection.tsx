@@ -6,19 +6,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 interface DailyReflectionProps {
   date: Date;
-  onSave: (reflection: { wins: string; improvements: string; gratitude: string }) => void;
+  onSave: (reflection: { wins: string; improvements: string }) => void;
 }
 
 const DailyReflection: React.FC<DailyReflectionProps> = ({ date, onSave }) => {
   const [wins, setWins] = useState('');
   const [improvements, setImprovements] = useState('');
-  const [gratitude, setGratitude] = useState('');
 
   const handleSave = () => {
-    onSave({ wins, improvements, gratitude });
+    onSave({ wins, improvements });
     setWins('');
     setImprovements('');
-    setGratitude('');
   };
 
   const formatDate = (date: Date) => {
@@ -52,16 +50,6 @@ const DailyReflection: React.FC<DailyReflectionProps> = ({ date, onSave }) => {
             placeholder="Areas to focus on tomorrow..."
             value={improvements}
             onChange={(e) => setImprovements(e.target.value)}
-            className="resize-none"
-          />
-        </div>
-        
-        <div>
-          <label className="text-sm font-medium mb-1 block">What are you grateful for?</label>
-          <Textarea
-            placeholder="Express gratitude for something today..."
-            value={gratitude}
-            onChange={(e) => setGratitude(e.target.value)}
             className="resize-none"
           />
         </div>

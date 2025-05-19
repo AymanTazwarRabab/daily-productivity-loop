@@ -49,7 +49,7 @@ const Index = () => {
     });
   };
 
-  const handleSaveReflection = () => {
+  const handleSaveReflection = (reflection: { wins: string; improvements: string }) => {
     toast({
       title: "Reflection saved",
       description: "Your daily reflection has been saved",
