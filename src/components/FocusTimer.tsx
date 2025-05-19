@@ -1,22 +1,35 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 
 interface FocusTimerProps {
   onSessionComplete: () => void;
 }
 
 const FocusTimer: React.FC<FocusTimerProps> = ({ onSessionComplete }) => {
-  // Default to 25 minutes (in seconds)
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const minFocusTime = 20; // 20 minutes minimum
+  const maxFocusTime = 90; // 90 minutes maximum
+  const defaultFocusTime = 25; // Default to 25 minutes
+  
+  const [focusMinutes, setFocusMinutes] = useState(defaultFocusTime);
+  const [timeLeft, setTimeLeft] = useState(defaultFocusTime * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [progress, setProgress] = useState(100);
   
-  const focusTime = 25 * 60; // 25 minutes
-  const breakTime = 5 * 60; // 5 minutes
+  const focusTime = focusMinutes * 60; // Convert to seconds
+  const breakTime = 5 * 60; // 5 minutes break
+
+  useEffect(() => {
+    // Update timeLeft when focusMinutes changes (only when timer is not running)
+    if (!isRunning && !isBreak) {
+      setTimeLeft(focusMinutes * 60);
+      setProgress(100);
+    }
+  }, [focusMinutes, isRunning, isBreak]);
 
   useEffect(() => {
     let interval: number | undefined;
@@ -58,6 +71,12 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ onSessionComplete }) => {
     setProgress(100);
   };
 
+  const handleFocusTimeChange = (value: number[]) => {
+    if (!isRunning) {
+      setFocusMinutes(value[0]);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -97,6 +116,27 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ onSessionComplete }) => {
           />
         </svg>
       </div>
+      
+      {!isRunning && !isBreak && (
+        <div className="w-full mb-4 space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Session duration</span>
+            <span className="text-sm font-medium">{focusMinutes} minutes</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Timer size={16} />
+            <Slider 
+              defaultValue={[defaultFocusTime]} 
+              value={[focusMinutes]}
+              min={minFocusTime} 
+              max={maxFocusTime} 
+              step={5}
+              onValueChange={handleFocusTimeChange}
+              disabled={isRunning}
+            />
+          </div>
+        </div>
+      )}
       
       <div className="flex space-x-2">
         <Button 
