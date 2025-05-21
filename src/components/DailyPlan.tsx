@@ -3,8 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Trash2, Plus } from 'lucide-react';
 import TaskItem from './TaskItem';
 import { getTasks, saveTasks, StoredTask } from '@/utils/localStorage';
+import { useToast } from '@/hooks/use-toast';
 
 interface Task {
   id: string;
@@ -23,6 +25,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<1 | 2 | 3>(2);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const { toast } = useToast();
 
   // Load tasks from localStorage on component mount
   useEffect(() => {
@@ -64,6 +67,13 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
     // Call parent handler
     onAddTask(task);
     
+    // Show success toast
+    toast({
+      title: "Task Added",
+      description: `"${newTask}" has been added to your tasks.`,
+      duration: 3000,
+    });
+    
     // Reset form
     setNewTask('');
     setPriority(2);
@@ -75,6 +85,21 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
     ));
     onTaskComplete(id, completed);
   };
+  
+  const handleRemoveTask = (id: string) => {
+    // Find the task to get its title for the toast message
+    const taskToRemove = tasks.find(task => task.id === id);
+    
+    // Remove the task from state
+    setTasks(tasks.filter(task => task.id !== id));
+    
+    // Show success toast
+    toast({
+      title: "Task Removed",
+      description: taskToRemove ? `"${taskToRemove.title}" has been removed.` : "Task has been removed.",
+      duration: 3000,
+    });
+  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', { 
@@ -85,6 +110,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
   };
 
   const remainingTasks = tasks.filter(t => !t.completed).length;
+  const completedTasks = tasks.filter(t => t.completed).length;
 
   return (
     <Card>
@@ -128,28 +154,77 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
               3
             </Button>
           </div>
-          <Button onClick={handleAddTask}>Add</Button>
+          <Button onClick={handleAddTask}>
+            <Plus size={16} className="mr-1" />
+            Add
+          </Button>
         </div>
 
         <div>
           <h4 className="text-sm font-medium mb-2">Most Important Tasks ({remainingTasks} remaining)</h4>
-          <div className="space-y-2">
-            {tasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                id={task.id}
-                title={task.title}
-                completed={task.completed}
-                priority={task.priority}
-                onToggle={handleToggleTask}
-              />
-            ))}
-            {tasks.length === 0 && (
-              <p className="text-center py-4 text-muted-foreground">
-                No tasks added yet. Add your first task above!
-              </p>
-            )}
-          </div>
+          
+          {/* Active Tasks */}
+          {tasks.filter(task => !task.completed).length > 0 && (
+            <div className="space-y-2 mb-4">
+              <h5 className="text-xs font-medium text-muted-foreground">Active Tasks</h5>
+              {tasks
+                .filter(task => !task.completed)
+                .sort((a, b) => a.priority - b.priority)
+                .map((task) => (
+                  <div key={task.id} className="flex items-center gap-1">
+                    <TaskItem
+                      id={task.id}
+                      title={task.title}
+                      completed={task.completed}
+                      priority={task.priority}
+                      onToggle={handleToggleTask}
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={() => handleRemoveTask(task.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+              ))}
+            </div>
+          )}
+          
+          {/* Completed Tasks */}
+          {completedTasks > 0 && (
+            <div className="space-y-2">
+              <h5 className="text-xs font-medium text-muted-foreground">Completed Tasks</h5>
+              {tasks
+                .filter(task => task.completed)
+                .map((task) => (
+                  <div key={task.id} className="flex items-center gap-1">
+                    <TaskItem
+                      id={task.id}
+                      title={task.title}
+                      completed={task.completed}
+                      priority={task.priority}
+                      onToggle={handleToggleTask}
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={() => handleRemoveTask(task.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+              ))}
+            </div>
+          )}
+          
+          {tasks.length === 0 && (
+            <p className="text-center py-4 text-muted-foreground">
+              No tasks added yet. Add your first task above!
+            </p>
+          )}
         </div>
       </CardContent>
       <CardFooter className="border-t pt-4 justify-between">

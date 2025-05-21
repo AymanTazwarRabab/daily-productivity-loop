@@ -27,8 +27,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <div className={cn(
-      "task-item group", 
-      completed && "bg-muted/50 text-muted-foreground"
+      "task-item group flex items-center gap-2 p-2 rounded-md w-full",
+      completed ? "bg-muted/50 text-muted-foreground" : "hover:bg-secondary/50"
     )}>
       <div className={cn(
         "w-1 self-stretch rounded-full",
