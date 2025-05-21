@@ -6,33 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Save, Download, RefreshCw, Trash2, Palette } from "lucide-react";
+import { ArrowLeft, Save, Download, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { getSettings, saveSettings } from '@/utils/localStorage';
-
-const colorThemes = [
-  { name: 'Default', primary: 'hsl(var(--primary))', background: 'hsl(var(--background))' },
-  { name: 'Purple', primary: '#9b87f5', background: '#1A1F2C' },
-  { name: 'Ocean', primary: '#0EA5E9', background: '#0c1e2b' },
-  { name: 'Forest', primary: '#16a34a', background: '#0f1f14' },
-  { name: 'Sunset', primary: '#F97316', background: '#261311' },
-  { name: 'Berry', primary: '#D946EF', background: '#261129' },
-];
 
 const Settings = () => {
   const [defaultFocusTime, setDefaultFocusTime] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
   const [offlineMode, setOfflineMode] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [selectedColorTheme, setSelectedColorTheme] = useState('Default');
   
   useEffect(() => {
     // Load settings from localStorage
     const settings = getSettings();
     setDefaultFocusTime(settings.defaultFocusTime);
     setBreakTime(settings.breakTime);
-    setSelectedColorTheme(settings.colorTheme || 'Default');
     
     // Check if dark mode is set
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -42,25 +30,13 @@ const Settings = () => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     }
-
-    // Apply color theme if set
-    applyColorTheme(settings.colorTheme || 'Default');
   }, []);
-
-  const applyColorTheme = (themeName: string) => {
-    const theme = colorThemes.find(t => t.name === themeName);
-    if (!theme) return;
-    
-    document.documentElement.style.setProperty('--theme-primary', theme.primary);
-    document.documentElement.style.setProperty('--theme-background', theme.background);
-  };
   
   const handleSaveSettings = () => {
     // Save focus and break time settings
     saveSettings({
       defaultFocusTime,
-      breakTime,
-      colorTheme: selectedColorTheme
+      breakTime
     });
     
     // Save dark mode preference
@@ -72,9 +48,6 @@ const Settings = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    
-    // Apply color theme
-    applyColorTheme(selectedColorTheme);
     
     toast({
       title: "Settings saved",
@@ -171,12 +144,9 @@ const Settings = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Palette className="mr-2 h-5 w-5" />
-                Appearance
-              </CardTitle>
+              <CardTitle>Appearance</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="dark-mode">Dark Mode</Label>
                 <Switch 
@@ -184,28 +154,6 @@ const Settings = () => {
                   checked={darkMode} 
                   onCheckedChange={setDarkMode} 
                 />
-              </div>
-              
-              <div className="space-y-3">
-                <Label>Color Theme</Label>
-                <RadioGroup 
-                  value={selectedColorTheme} 
-                  onValueChange={setSelectedColorTheme}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  {colorThemes.map((theme) => (
-                    <div key={theme.name} className="flex items-center space-x-2">
-                      <RadioGroupItem value={theme.name} id={`theme-${theme.name}`} />
-                      <Label htmlFor={`theme-${theme.name}`} className="flex items-center">
-                        <span 
-                          className="inline-block w-4 h-4 rounded-full mr-2 border border-border" 
-                          style={{ backgroundColor: theme.primary }} 
-                        />
-                        {theme.name}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
               </div>
             </CardContent>
           </Card>
