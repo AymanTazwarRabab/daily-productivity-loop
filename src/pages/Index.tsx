@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import DailyPlan from '@/components/DailyPlan';
 import FocusTimer from '@/components/FocusTimer';
 import DailyReflection from '@/components/DailyReflection';
 import UserStats from '@/components/UserStats';
 import TaskCalendar from '@/components/TaskCalendar';
-import { useToast } from '@/components/ui/use-toast';
+import Navbar from '@/components/Navbar';
+import { useToast } from '@/hooks/use-toast';
+import { getStats, saveStats } from '@/utils/localStorage';
 
 const Index = () => {
   const { toast } = useToast();
@@ -15,21 +17,68 @@ const Index = () => {
   const [tasksCompleted, setTasksCompleted] = useState(0);
   
   // User stats
-  const [streak] = useState(3);
-  const [level] = useState(2);
-  const [xp] = useState(125);
+  const [streak, setStreak] = useState(3);
+  const [level, setLevel] = useState(2);
+  const [xp, setXp] = useState(125);
   const [xpForNextLevel] = useState(200);
+
+  // Load stats from localStorage
+  useEffect(() => {
+    const savedStats = getStats();
+    setFocusSessions(savedStats.focusSessions);
+    setTasksCompleted(savedStats.tasksCompleted);
+    setStreak(savedStats.streak);
+    setLevel(savedStats.level);
+    setXp(savedStats.xp);
+  }, []);
 
   const handleTaskComplete = (taskId: string, completed: boolean) => {
     if (completed) {
-      setTasksCompleted(prev => prev + 1);
-      toast({
-        title: "Task completed!",
-        description: "You earned 10 XP. Keep it up!",
-        duration: 3000,
+      const newTasksCompleted = tasksCompleted + 1;
+      setTasksCompleted(newTasksCompleted);
+      
+      const newXp = xp + 10;
+      setXp(newXp);
+      
+      // Check if leveled up
+      if (newXp >= xpForNextLevel) {
+        const newLevel = level + 1;
+        setLevel(newLevel);
+        toast({
+          title: "Level Up!",
+          description: `Congratulations! You're now level ${newLevel}!`,
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "Task completed!",
+          description: "You earned 10 XP. Keep it up!",
+          duration: 3000,
+        });
+      }
+      
+      // Update localStorage
+      saveStats({
+        focusSessions,
+        tasksCompleted: newTasksCompleted,
+        streak,
+        level: newXp >= xpForNextLevel ? level + 1 : level,
+        xp: newXp,
+        xpForNextLevel
       });
     } else {
-      setTasksCompleted(prev => Math.max(0, prev - 1));
+      const newTasksCompleted = Math.max(0, tasksCompleted - 1);
+      setTasksCompleted(newTasksCompleted);
+      
+      // Update localStorage
+      saveStats({
+        focusSessions,
+        tasksCompleted: newTasksCompleted,
+        streak,
+        level,
+        xp: Math.max(0, xp - 10),
+        xpForNextLevel
+      });
     }
   };
 
@@ -50,11 +99,37 @@ const Index = () => {
   };
 
   const handleSessionComplete = () => {
-    setFocusSessions(prev => prev + 1);
-    toast({
-      title: "Focus session completed!",
-      description: "Great job! You earned 25 XP.",
-      duration: 3000,
+    const newFocusSessions = focusSessions + 1;
+    setFocusSessions(newFocusSessions);
+    
+    const newXp = xp + 25;
+    setXp(newXp);
+    
+    // Check if leveled up
+    if (newXp >= xpForNextLevel) {
+      const newLevel = level + 1;
+      setLevel(newLevel);
+      toast({
+        title: "Level Up!",
+        description: `Congratulations! You're now level ${newLevel}!`,
+        duration: 5000,
+      });
+    } else {
+      toast({
+        title: "Focus session completed!",
+        description: "Great job! You earned 25 XP.",
+        duration: 3000,
+      });
+    }
+    
+    // Update localStorage
+    saveStats({
+      focusSessions: newFocusSessions,
+      tasksCompleted,
+      streak,
+      level: newXp >= xpForNextLevel ? level + 1 : level,
+      xp: newXp,
+      xpForNextLevel
     });
   };
 
@@ -67,7 +142,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <DashboardHeader userName="Productivity Pro" date={date} />
         
@@ -104,6 +179,7 @@ const Index = () => {
           </div>
         </div>
       </div>
+      <Navbar />
     </div>
   );
 };

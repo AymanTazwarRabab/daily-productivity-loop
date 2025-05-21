@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DayContent } from "react-day-picker";
+import { getCalendarTasks, saveCalendarTasks, StoredCalendarTask } from '@/utils/localStorage';
 
 interface CalendarTask {
   id: string;
@@ -29,12 +29,50 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [tasks, setTasks] = useState<CalendarTask[]>([]);
   
-  // Sample tasks for demonstration - in a real app these would come from props or global state
-  const [tasks, setTasks] = useState<CalendarTask[]>([
-    { id: '101', title: 'Team meeting', date: new Date(), completed: false },
-    { id: '102', title: 'Review project', date: new Date(Date.now() + 86400000), completed: false }, // tomorrow
-  ]);
+  // Load tasks from localStorage
+  useEffect(() => {
+    const storedTasks = getCalendarTasks();
+    if (storedTasks && storedTasks.length > 0) {
+      // Convert ISO date strings to Date objects
+      const tasksWithDates: CalendarTask[] = storedTasks.map(task => ({
+        ...task,
+        date: new Date(task.date)
+      }));
+      setTasks(tasksWithDates);
+    } else {
+      // Default tasks if none exist
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const defaultTasks: CalendarTask[] = [
+        { id: '101', title: 'Team meeting', date: today, completed: false },
+        { id: '102', title: 'Review project', date: tomorrow, completed: false },
+      ];
+      
+      setTasks(defaultTasks);
+      
+      // Save to localStorage
+      const tasksForStorage: StoredCalendarTask[] = defaultTasks.map(task => ({
+        ...task,
+        date: task.date.toISOString()
+      }));
+      saveCalendarTasks(tasksForStorage);
+    }
+  }, []);
+  
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const tasksForStorage: StoredCalendarTask[] = tasks.map(task => ({
+        ...task,
+        date: task.date.toISOString()
+      }));
+      saveCalendarTasks(tasksForStorage);
+    }
+  }, [tasks]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {

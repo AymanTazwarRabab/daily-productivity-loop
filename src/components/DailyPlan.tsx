@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import TaskItem from './TaskItem';
+import { getTasks, saveTasks, StoredTask } from '@/utils/localStorage';
 
 interface Task {
   id: string;
@@ -21,13 +22,31 @@ interface DailyPlanProps {
 const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }) => {
   const [newTask, setNewTask] = useState('');
   const [priority, setPriority] = useState<1 | 2 | 3>(2);
-  
-  // Sample tasks - in a real app, these would come from props or state management
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', title: 'Complete project presentation', completed: false, priority: 1 },
-    { id: '2', title: 'Read 20 pages', completed: false, priority: 2 },
-    { id: '3', title: 'Go for a 30-minute walk', completed: false, priority: 3 },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Load tasks from localStorage on component mount
+  useEffect(() => {
+    const storedTasks = getTasks();
+    if (storedTasks && storedTasks.length > 0) {
+      setTasks(storedTasks);
+    } else {
+      // Default tasks if none exist
+      const defaultTasks: Task[] = [
+        { id: '1', title: 'Complete project presentation', completed: false, priority: 1 },
+        { id: '2', title: 'Read 20 pages', completed: false, priority: 2 },
+        { id: '3', title: 'Go for a 30-minute walk', completed: false, priority: 3 },
+      ];
+      setTasks(defaultTasks);
+      saveTasks(defaultTasks);
+    }
+  }, []);
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      saveTasks(tasks);
+    }
+  }, [tasks]);
 
   const handleAddTask = () => {
     if (newTask.trim() === '') return;
