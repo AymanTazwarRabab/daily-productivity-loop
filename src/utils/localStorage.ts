@@ -1,4 +1,3 @@
-
 // Type definitions for our stored data
 export interface StoredTask {
   id: string;
@@ -32,6 +31,7 @@ export interface StoredStats {
 export interface StoredSettings {
   defaultFocusTime: number;
   breakTime: number;
+  colorTheme?: string;
 }
 
 // Storage keys
@@ -115,6 +115,7 @@ export const getSettings = (): StoredSettings => {
   const settingsJson = localStorage.getItem(SETTINGS_KEY);
   return settingsJson ? JSON.parse(settingsJson) : {
     defaultFocusTime: 25,
-    breakTime: 5
+    breakTime: 5,
+    colorTheme: 'Default'
   };
 };

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Flag } from 'lucide-react';
 import TaskItem from './TaskItem';
 import { getTasks, saveTasks, StoredTask } from '@/utils/localStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -100,6 +100,21 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
       duration: 3000,
     });
   };
+  
+  const handlePriorityChange = (id: string, newPriority: 1 | 2 | 3) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, priority: newPriority } : task
+    ));
+    
+    const task = tasks.find(task => task.id === id);
+    if (task) {
+      toast({
+        title: "Priority Updated",
+        description: `"${task.title}" priority changed to ${newPriority === 1 ? "High" : newPriority === 2 ? "Medium" : "Low"}`,
+        duration: 2000,
+      });
+    }
+  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', { 
@@ -133,25 +148,28 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
               size="sm" 
               variant={priority === 1 ? "default" : "outline"}
               onClick={() => setPriority(1)}
-              className="px-2 w-8 h-8"
+              className="px-2 w-8 h-8 group"
+              title="High priority"
             >
-              1
+              <Flag className={cn("w-4 h-4", priority === 1 ? "text-destructive-foreground" : "text-destructive")} />
             </Button>
             <Button 
               size="sm" 
               variant={priority === 2 ? "default" : "outline"}
               onClick={() => setPriority(2)}
-              className="px-2 w-8 h-8"
+              className="px-2 w-8 h-8 group"
+              title="Medium priority"
             >
-              2
+              <Flag className={cn("w-4 h-4", priority === 2 ? "text-primary-foreground" : "text-primary")} />
             </Button>
             <Button 
               size="sm" 
               variant={priority === 3 ? "default" : "outline"}
               onClick={() => setPriority(3)}
-              className="px-2 w-8 h-8"
+              className="px-2 w-8 h-8 group"
+              title="Low priority"
             >
-              3
+              <Flag className={cn("w-4 h-4", priority === 3 ? "text-muted-foreground" : "text-muted-foreground")} />
             </Button>
           </div>
           <Button onClick={handleAddTask}>
@@ -178,6 +196,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
                       completed={task.completed}
                       priority={task.priority}
                       onToggle={handleToggleTask}
+                      onPriorityChange={handlePriorityChange}
                     />
                     <Button 
                       size="sm" 
