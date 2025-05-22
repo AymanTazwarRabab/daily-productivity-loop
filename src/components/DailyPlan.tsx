@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import TaskItem from './TaskItem';
 import { getTasks, saveTasks, StoredTask } from '@/utils/localStorage';
 import { useToast } from '@/hooks/use-toast';
@@ -101,6 +103,10 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
     });
   };
 
+  const handlePriorityChange = (value: string) => {
+    setPriority(parseInt(value) as 1 | 2 | 3);
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', { 
       weekday: 'long',
@@ -119,45 +125,34 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
         <CardDescription>{formatDate(date)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-end gap-2">
-          <div className="flex-1">
-            <Input
-              placeholder="Add a task..."
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-            />
-          </div>
-          <div className="space-x-1">
-            <Button 
-              size="sm" 
-              variant={priority === 1 ? "default" : "outline"}
-              onClick={() => setPriority(1)}
-              className="px-2 w-8 h-8"
-            >
-              1
-            </Button>
-            <Button 
-              size="sm" 
-              variant={priority === 2 ? "default" : "outline"}
-              onClick={() => setPriority(2)}
-              className="px-2 w-8 h-8"
-            >
-              2
-            </Button>
-            <Button 
-              size="sm" 
-              variant={priority === 3 ? "default" : "outline"}
-              onClick={() => setPriority(3)}
-              className="px-2 w-8 h-8"
-            >
-              3
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                placeholder="Add a task..."
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+              />
+            </div>
+            <Button onClick={handleAddTask}>
+              <Plus size={16} className="mr-1" />
+              Add
             </Button>
           </div>
-          <Button onClick={handleAddTask}>
-            <Plus size={16} className="mr-1" />
-            Add
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Priority:</span>
+            <Select value={priority.toString()} onValueChange={handlePriorityChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">High Priority</SelectItem>
+                <SelectItem value="2">Medium Priority</SelectItem>
+                <SelectItem value="3">Low Priority</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div>
