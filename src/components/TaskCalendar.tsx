@@ -12,12 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DayContent } from "react-day-picker";
 import { getCalendarTasks, saveCalendarTasks, StoredCalendarTask } from '@/utils/localStorage';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CalendarTask {
   id: string;
   title: string;
   date: Date;
   completed: boolean;
+  priority: 1 | 2 | 3; // 1 = high, 2 = medium, 3 = low
 }
 
 interface TaskCalendarProps {
@@ -30,6 +32,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState<1 | 2 | 3>(2); // Default to medium priority
   const [tasks, setTasks] = useState<CalendarTask[]>([]);
   
   // Load tasks from localStorage
@@ -39,7 +42,8 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
       // Convert ISO date strings to Date objects
       const tasksWithDates: CalendarTask[] = storedTasks.map(task => ({
         ...task,
-        date: new Date(task.date)
+        date: new Date(task.date),
+        priority: task.priority || 2 // Default to medium if not set
       }));
       setTasks(tasksWithDates);
     } else {
@@ -49,8 +53,8 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
       tomorrow.setDate(tomorrow.getDate() + 1);
       
       const defaultTasks: CalendarTask[] = [
-        { id: '101', title: 'Team meeting', date: today, completed: false },
-        { id: '102', title: 'Review project', date: tomorrow, completed: false },
+        { id: '101', title: 'Team meeting', date: today, completed: false, priority: 1 },
+        { id: '102', title: 'Review project', date: tomorrow, completed: false, priority: 2 },
       ];
       
       setTasks(defaultTasks);
@@ -88,7 +92,8 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
     const newTask = {
       title: newTaskTitle,
       date: selectedDate,
-      completed: false
+      completed: false,
+      priority: newTaskPriority
     };
     
     // Add to local state
@@ -100,6 +105,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
     
     // Reset form and close dialog
     setNewTaskTitle('');
+    setNewTaskPriority(2);
     setIsAddTaskDialogOpen(false);
   };
 
@@ -111,6 +117,10 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
     if (onTaskComplete) {
       onTaskComplete(taskId, completed);
     }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
   };
 
   // Function to get tasks for a specific date
@@ -134,8 +144,16 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
     );
   };
 
-  const formatDate = (date: Date) => {
-    return format(date, "EEEE, MMMM d, yyyy");
+  const getPriorityColor = (priority: 1 | 2 | 3) => {
+    return priority === 1 
+      ? "bg-red-100 text-red-800 border-red-200" 
+      : priority === 2 
+        ? "bg-blue-100 text-blue-800 border-blue-200" 
+        : "bg-gray-100 text-gray-800 border-gray-200";
+  };
+
+  const getPriorityLabel = (priority: 1 | 2 | 3) => {
+    return priority === 1 ? "High" : priority === 2 ? "Medium" : "Low";
   };
 
   // Custom day content renderer compatible with react-day-picker types
@@ -149,7 +167,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
   };
 
   return (
-    <Card className="h-fit">
+    <Card className="h-fit w-full md:w-auto">
       <CardHeader className="pb-3">
         <CardTitle className="flex justify-between items-center text-base font-medium">
           <span>Task Calendar</span>
@@ -197,7 +215,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
               {getTasksForDate(date).length > 0 ? (
                 getTasksForDate(date).map(task => (
                   <div key={task.id} className="flex items-center justify-between py-1 px-2 border rounded-md text-sm">
-                    <div className="flex items-center">
+                    <div className="flex items-center flex-1">
                       <input 
                         type="checkbox"
                         checked={task.completed}
@@ -208,7 +226,19 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
                         {task.title}
                       </span>
                     </div>
-                    {task.completed && <Badge variant="outline" className="bg-green-100 text-xs">Done</Badge>}
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={cn(getPriorityColor(task.priority), "text-xs")}>
+                        {getPriorityLabel(task.priority)}
+                      </Badge>
+                      {task.completed && <Badge variant="outline" className="bg-green-100 text-xs">Done</Badge>}
+                      <button 
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="text-destructive hover:text-destructive/80 text-sm"
+                        aria-label="Delete task"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -236,13 +266,38 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
           <DialogHeader>
             <DialogTitle>Add Task for {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : ""}</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <Input
-              placeholder="Enter task title..."
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-            />
+          <div className="py-4 space-y-4">
+            <div>
+              <label htmlFor="task-title" className="text-sm font-medium block mb-1">
+                Task Title
+              </label>
+              <Input
+                id="task-title"
+                placeholder="Enter task title..."
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="task-priority" className="text-sm font-medium block mb-1">
+                Priority
+              </label>
+              <Select 
+                value={newTaskPriority.toString()} 
+                onValueChange={(value) => setNewTaskPriority(parseInt(value) as 1 | 2 | 3)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">High</SelectItem>
+                  <SelectItem value="2">Medium</SelectItem>
+                  <SelectItem value="3">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)}>

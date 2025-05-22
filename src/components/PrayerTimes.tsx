@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Clock } from 'lucide-react';
+import { Check, Clock, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -66,6 +67,22 @@ const PrayerTimes = () => {
     toast({
       title: newStatus ? `${prayers[index].name} Prayer Completed` : `${prayers[index].name} Prayer Marked as Incomplete`,
       description: newStatus ? "May Allah accept your prayers." : "Prayer status updated.",
+      duration: 3000,
+    });
+  };
+
+  const handleResetPrayers = () => {
+    const resetPrayers = prayers.map(prayer => ({
+      ...prayer,
+      completed: false
+    }));
+    
+    setPrayers(resetPrayers);
+    savePrayers(resetPrayers);
+    
+    toast({
+      title: "Prayers Reset",
+      description: "All prayer statuses have been reset for a new day.",
       duration: 3000,
     });
   };
@@ -145,6 +162,17 @@ const PrayerTimes = () => {
           ))}
         </div>
       </CardContent>
+      <CardFooter>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full flex items-center gap-2"
+          onClick={handleResetPrayers}
+        >
+          <RotateCcw size={14} />
+          Reset All Prayers
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
