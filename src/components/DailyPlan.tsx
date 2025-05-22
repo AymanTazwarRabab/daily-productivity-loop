@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Trash2, Plus } from 'lucide-react';
 import TaskItem from './TaskItem';
 import { getTasks, saveTasks, StoredTask } from '@/utils/localStorage';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface Task {
   id: string;
