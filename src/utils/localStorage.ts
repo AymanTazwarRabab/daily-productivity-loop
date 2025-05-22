@@ -1,4 +1,3 @@
-
 // Type definitions for our stored data
 export interface StoredTask {
   id: string;
@@ -12,6 +11,7 @@ export interface StoredCalendarTask {
   title: string;
   date: string; // ISO date string format
   completed: boolean;
+  priority: 1 | 2 | 3; // 1 = high, 2 = medium, 3 = low
 }
 
 export interface StoredReflection {
