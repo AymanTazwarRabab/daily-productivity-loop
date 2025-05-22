@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -148,14 +149,14 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
+    <Card className="h-fit">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex justify-between items-center text-base font-medium">
           <span>Task Calendar</span>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
-                <CalendarIcon className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" className="h-8">
+                <CalendarIcon className="h-3.5 w-3.5 mr-1" />
                 {format(date, "MMM yyyy")}
               </Button>
             </PopoverTrigger>
@@ -173,31 +174,29 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
           </Popover>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-col">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(date) => {
-                if (date) {
-                  setDate(date);
-                  handleDateSelect(date);
-                }
-              }}
-              className={cn("p-3 pointer-events-auto rounded-md border")}
-              components={{
-                DayContent: CustomDayContent,
-              }}
-            />
-          </div>
+      <CardContent className="pt-0">
+        <div className="grid gap-4 grid-cols-1">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(date) => {
+              if (date) {
+                setDate(date);
+                handleDateSelect(date);
+              }
+            }}
+            className={cn("p-2 pointer-events-auto rounded-md border")}
+            components={{
+              DayContent: CustomDayContent,
+            }}
+          />
           
-          <div>
-            <h3 className="font-medium mb-2">Tasks for {formatDate(date)}</h3>
-            <div className="space-y-2">
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Tasks for {format(date, "MMM d")}</h3>
+            <div className="max-h-[200px] overflow-y-auto space-y-1">
               {getTasksForDate(date).length > 0 ? (
                 getTasksForDate(date).map(task => (
-                  <div key={task.id} className="flex items-center justify-between p-2 border rounded-md">
+                  <div key={task.id} className="flex items-center justify-between py-1 px-2 border rounded-md text-sm">
                     <div className="flex items-center">
                       <input 
                         type="checkbox"
@@ -209,23 +208,24 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
                         {task.title}
                       </span>
                     </div>
-                    {task.completed && <Badge variant="outline" className="bg-green-100">Done</Badge>}
+                    {task.completed && <Badge variant="outline" className="bg-green-100 text-xs">Done</Badge>}
                   </div>
                 ))
               ) : (
-                <p className="text-center py-2 text-muted-foreground">
-                  No tasks for this date. Click on a date to add tasks.
+                <p className="text-center py-1 text-muted-foreground text-sm">
+                  No tasks for this date.
                 </p>
               )}
-              
-              <Button 
-                variant="outline" 
-                className="w-full mt-2" 
-                onClick={() => setIsAddTaskDialogOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" /> Add Task
-              </Button>
             </div>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="w-full" 
+              onClick={() => setIsAddTaskDialogOpen(true)}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Task
+            </Button>
           </div>
         </div>
       </CardContent>

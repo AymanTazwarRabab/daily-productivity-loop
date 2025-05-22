@@ -6,6 +6,7 @@ import FocusTimer from '@/components/FocusTimer';
 import DailyReflection from '@/components/DailyReflection';
 import UserStats from '@/components/UserStats';
 import TaskCalendar from '@/components/TaskCalendar';
+import PrayerTimes from '@/components/PrayerTimes';
 import Navbar from '@/components/Navbar';
 import { useToast } from '@/hooks/use-toast';
 import { getStats, saveStats } from '@/utils/localStorage';
@@ -154,10 +155,14 @@ const Index = () => {
               onAddTask={handleAddTask}
             />
             
-            <TaskCalendar 
-              onAddTask={handleCalendarTaskAdd}
-              onTaskComplete={handleTaskComplete}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TaskCalendar 
+                onAddTask={handleCalendarTaskAdd}
+                onTaskComplete={handleTaskComplete}
+              />
+              
+              <PrayerTimes />
+            </div>
             
             <DailyReflection 
               date={date} 
