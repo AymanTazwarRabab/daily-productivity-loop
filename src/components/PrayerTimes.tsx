@@ -1,178 +1,119 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Clock, RotateCcw } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-
-type PrayerName = 'Fajr' | 'Zuhr' | 'Asr' | 'Maghrib' | 'Isha';
+import { RefreshCcw } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface Prayer {
-  name: PrayerName;
-  completed: boolean;
+  name: string;
   time: string;
+  completed: boolean;
 }
 
-const PrayerTimes = () => {
-  const [prayers, setPrayers] = useState<Prayer[]>([
-    { name: 'Fajr', completed: false, time: '05:30' },
-    { name: 'Zuhr', completed: false, time: '13:00' },
-    { name: 'Asr', completed: false, time: '16:30' },
-    { name: 'Maghrib', completed: false, time: '19:15' },
-    { name: 'Isha', completed: false, time: '20:45' }
-  ]);
+interface PrayerTimesProps {
+  onPrayerComplete?: (prayerName: string, completed: boolean) => void;
+}
+
+const PrayerTimes: React.FC<PrayerTimesProps> = ({ onPrayerComplete }) => {
   const { toast } = useToast();
-
-  // Try to load saved prayer status from localStorage on component mount
-  useEffect(() => {
-    const savedPrayers = localStorage.getItem('prayerTimes');
+  const [prayers, setPrayers] = useState<Prayer[]>(() => {
+    const savedPrayers = localStorage.getItem('prayers');
     if (savedPrayers) {
-      try {
-        const parsedPrayers = JSON.parse(savedPrayers);
-        // If it's the same day, use the saved data
-        const today = new Date().toDateString();
-        if (parsedPrayers.date === today) {
-          setPrayers(parsedPrayers.prayers);
-        } else {
-          // Reset prayers for the new day but keep the times
-          const resetPrayers = prayers.map(p => ({
-            ...p,
-            completed: false
-          }));
-          setPrayers(resetPrayers);
-          savePrayers(resetPrayers);
-        }
-      } catch (e) {
-        console.error('Error parsing saved prayers', e);
-      }
+      return JSON.parse(savedPrayers);
     }
-  }, []);
+    return [
+      { name: 'Fajr', time: '5:15 AM', completed: false },
+      { name: 'Zuhr', time: '1:30 PM', completed: false },
+      { name: 'Asr', time: '4:45 PM', completed: false },
+      { name: 'Maghrib', time: '6:53 PM', completed: false },
+      { name: 'Isha', time: '8:15 PM', completed: false },
+    ];
+  });
 
-  const savePrayers = (updatedPrayers: Prayer[]) => {
-    const today = new Date().toDateString();
-    localStorage.setItem('prayerTimes', JSON.stringify({
-      date: today,
-      prayers: updatedPrayers
-    }));
-  };
+  // Save prayers to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('prayers', JSON.stringify(prayers));
+  }, [prayers]);
 
-  const handlePrayerToggle = (index: number) => {
-    const updatedPrayers = [...prayers];
-    const newStatus = !updatedPrayers[index].completed;
-    updatedPrayers[index].completed = newStatus;
-    setPrayers(updatedPrayers);
-    savePrayers(updatedPrayers);
-    
+  const handleTogglePrayer = (index: number) => {
+    const newPrayers = [...prayers];
+    newPrayers[index].completed = !newPrayers[index].completed;
+    setPrayers(newPrayers);
+
+    if (onPrayerComplete) {
+      onPrayerComplete(prayers[index].name, newPrayers[index].completed);
+    }
+
     toast({
-      title: newStatus ? `${prayers[index].name} Prayer Completed` : `${prayers[index].name} Prayer Marked as Incomplete`,
-      description: newStatus ? "May Allah accept your prayers." : "Prayer status updated.",
-      duration: 3000,
+      title: newPrayers[index].completed ? "Prayer completed" : "Prayer marked as incomplete",
+      description: `${prayers[index].name} prayer has been ${newPrayers[index].completed ? 'completed' : 'unmarked'}`,
+      duration: 2000,
     });
   };
 
   const handleResetPrayers = () => {
-    const resetPrayers = prayers.map(prayer => ({
-      ...prayer,
-      completed: false
-    }));
-    
-    setPrayers(resetPrayers);
-    savePrayers(resetPrayers);
+    const newPrayers = prayers.map(prayer => ({ ...prayer, completed: false }));
+    setPrayers(newPrayers);
     
     toast({
-      title: "Prayers Reset",
-      description: "All prayer statuses have been reset for a new day.",
+      title: "Prayers reset",
+      description: "All prayers have been reset for a new day",
       duration: 3000,
     });
   };
 
-  const getNextPrayer = () => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-    
-    for (const prayer of prayers) {
-      const [hours, minutes] = prayer.time.split(':').map(Number);
-      const prayerTime = hours * 60 + minutes;
-      
-      if (prayerTime > currentTime && !prayer.completed) {
-        return prayer;
-      }
-    }
-    
-    // If all prayers for today are done or passed, next is tomorrow's Fajr
-    return prayers[0];
-  };
-  
-  const nextPrayer = getNextPrayer();
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Prayer Times</CardTitle>
-        <CardDescription>
-          Next prayer: {nextPrayer.name} at {nextPrayer.time}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {prayers.map((prayer, index) => (
-            <div 
-              key={prayer.name}
-              className={cn(
-                "flex items-center justify-between p-3 rounded-md border",
-                prayer.completed ? "bg-muted/30" : "hover:bg-accent/50"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Button
-                  variant={prayer.completed ? "outline" : "default"}
-                  size="sm"
-                  className={cn(
-                    "h-8 w-8 p-0",
-                    prayer.completed ? "bg-primary/20 text-primary" : ""
-                  )}
-                  onClick={() => handlePrayerToggle(index)}
-                >
-                  {prayer.completed ? <Check size={16} /> : <Clock size={16} />}
-                </Button>
-                <div>
-                  <p className={cn("font-medium", prayer.completed && "text-muted-foreground")}>
-                    {prayer.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{prayer.time}</p>
-                </div>
-              </div>
-              <div>
-                {prayer.completed ? (
-                  <span className="text-xs font-medium text-primary py-1 px-2 bg-primary/10 rounded-full">
-                    Completed
-                  </span>
-                ) : (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handlePrayerToggle(index)}
-                  >
-                    Mark Complete
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-base font-medium">Daily Prayers</CardTitle>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8">
+                <RefreshCcw className="h-3.5 w-3.5 mr-1" />
+                Reset
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reset Prayer Tracking</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will mark all prayers as incomplete for a new day. Do you want to continue?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleResetPrayers}>Reset</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <ul className="space-y-2">
+          {prayers.map((prayer, index) => (
+            <li key={prayer.name} className="flex items-center justify-between p-2 rounded-md border">
+              <div>
+                <div className="font-medium">{prayer.name}</div>
+                <div className="text-sm text-muted-foreground">{prayer.time}</div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={prayer.completed}
+                  onChange={() => handleTogglePrayer(index)}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <span className={`text-xs ${prayer.completed ? 'text-green-600' : 'text-amber-600'}`}>
+                  {prayer.completed ? 'Completed' : 'Due'}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
       </CardContent>
-      <CardFooter>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full flex items-center gap-2"
-          onClick={handleResetPrayers}
-        >
-          <RotateCcw size={14} />
-          Reset All Prayers
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
