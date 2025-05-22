@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,30 +12,63 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { getStats, saveStats, getSettings, saveSettings } from '@/utils/localStorage';
-import { Settings as SettingsIcon, RefreshCcw } from 'lucide-react';
+import { Settings as SettingsIcon, RefreshCcw, Save } from 'lucide-react';
 
 const Settings = () => {
   const { toast } = useToast();
   const [settings, setSettings] = useState(getSettings());
   const [stats, setStats] = useState(getStats());
+  const [pendingSettings, setPendingSettings] = useState(getSettings());
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    // Check if there are pending changes that differ from saved settings
+    setHasChanges(
+      pendingSettings.defaultFocusTime !== settings.defaultFocusTime ||
+      pendingSettings.breakTime !== settings.breakTime ||
+      pendingSettings.notifications !== settings.notifications ||
+      pendingSettings.sound !== settings.sound ||
+      pendingSettings.theme !== settings.theme ||
+      pendingSettings.fontSize !== settings.fontSize ||
+      pendingSettings.compactMode !== settings.compactMode
+    );
+  }, [pendingSettings, settings]);
 
   const handleFocusTimeChange = (value: number[]) => {
-    const newSettings = { ...settings, defaultFocusTime: value[0] };
-    setSettings(newSettings);
-    saveSettings(newSettings);
-    toast({
-      title: "Settings updated",
-      description: `Default focus time set to ${value[0]} minutes`,
-    });
+    setPendingSettings({ ...pendingSettings, defaultFocusTime: value[0] });
   };
 
   const handleBreakTimeChange = (value: number[]) => {
-    const newSettings = { ...settings, breakTime: value[0] };
-    setSettings(newSettings);
-    saveSettings(newSettings);
+    setPendingSettings({ ...pendingSettings, breakTime: value[0] });
+  };
+  
+  const handleNotificationsChange = (checked: boolean) => {
+    setPendingSettings({ ...pendingSettings, notifications: checked });
+  };
+  
+  const handleSoundChange = (checked: boolean) => {
+    setPendingSettings({ ...pendingSettings, sound: checked });
+  };
+  
+  const handleThemeChange = (value: string) => {
+    setPendingSettings({ ...pendingSettings, theme: value });
+  };
+  
+  const handleFontSizeChange = (value: string) => {
+    setPendingSettings({ ...pendingSettings, fontSize: value });
+  };
+  
+  const handleCompactModeChange = (checked: boolean) => {
+    setPendingSettings({ ...pendingSettings, compactMode: checked });
+  };
+
+  const handleSaveChanges = () => {
+    setSettings(pendingSettings);
+    saveSettings(pendingSettings);
+    setHasChanges(false);
     toast({
-      title: "Settings updated",
-      description: `Break time set to ${value[0]} minutes`,
+      title: "Settings saved",
+      description: "Your settings have been updated successfully",
     });
   };
 
@@ -92,11 +125,11 @@ const Settings = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="focus-time">Focus Session Duration (minutes)</Label>
-                    <span className="text-sm">{settings.defaultFocusTime} min</span>
+                    <span className="text-sm">{pendingSettings.defaultFocusTime} min</span>
                   </div>
                   <Slider
                     id="focus-time"
-                    defaultValue={[settings.defaultFocusTime]}
+                    value={[pendingSettings.defaultFocusTime]}
                     max={60}
                     min={5}
                     step={5}
@@ -107,11 +140,11 @@ const Settings = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="break-time">Break Duration (minutes)</Label>
-                    <span className="text-sm">{settings.breakTime} min</span>
+                    <span className="text-sm">{pendingSettings.breakTime} min</span>
                   </div>
                   <Slider
                     id="break-time"
-                    defaultValue={[settings.breakTime]}
+                    value={[pendingSettings.breakTime]}
                     max={30}
                     min={1}
                     step={1}
@@ -124,7 +157,11 @@ const Settings = () => {
                     <Label htmlFor="notifications">Enable Notifications</Label>
                     <p className="text-sm text-muted-foreground">Receive notifications when tasks are due</p>
                   </div>
-                  <Switch id="notifications" />
+                  <Switch 
+                    id="notifications" 
+                    checked={pendingSettings.notifications}
+                    onCheckedChange={handleNotificationsChange}
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -132,7 +169,11 @@ const Settings = () => {
                     <Label htmlFor="sound">Sound Effects</Label>
                     <p className="text-sm text-muted-foreground">Play sounds for timer and task completion</p>
                   </div>
-                  <Switch id="sound" defaultChecked />
+                  <Switch 
+                    id="sound" 
+                    checked={pendingSettings.sound !== undefined ? pendingSettings.sound : true}
+                    onCheckedChange={handleSoundChange}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -146,7 +187,10 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="theme">Theme</Label>
-                  <Select defaultValue="system">
+                  <Select 
+                    value={pendingSettings.theme || "system"} 
+                    onValueChange={handleThemeChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select theme" />
                     </SelectTrigger>
@@ -160,7 +204,10 @@ const Settings = () => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="font-size">Font Size</Label>
-                  <Select defaultValue="medium">
+                  <Select 
+                    value={pendingSettings.fontSize || "medium"}
+                    onValueChange={handleFontSizeChange}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select font size" />
                     </SelectTrigger>
@@ -177,7 +224,11 @@ const Settings = () => {
                     <Label htmlFor="compact">Compact Mode</Label>
                     <p className="text-sm text-muted-foreground">Use compact layout for more content on screen</p>
                   </div>
-                  <Switch id="compact" />
+                  <Switch 
+                    id="compact" 
+                    checked={pendingSettings.compactMode || false}
+                    onCheckedChange={handleCompactModeChange}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -264,6 +315,16 @@ const Settings = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Save Changes Button */}
+        {hasChanges && (
+          <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-10">
+            <Button onClick={handleSaveChanges} className="shadow-lg">
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        )}
       </div>
       <Navbar />
     </div>
