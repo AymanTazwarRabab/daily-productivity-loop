@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import DailyPlan from '@/components/DailyPlan';
@@ -9,41 +8,23 @@ import TaskCalendar from '@/components/TaskCalendar';
 import PrayerTimes from '@/components/PrayerTimes';
 import Navbar from '@/components/Navbar';
 import { useToast } from '@/hooks/use-toast';
-import { getStats, saveStats } from '@/utils/localStorage';
+import { useAppState } from '@/contexts/AppStateContext';
 
 const Index = () => {
   const { toast } = useToast();
   const [date] = useState(new Date());
-  const [focusSessions, setFocusSessions] = useState(0);
-  const [tasksCompleted, setTasksCompleted] = useState(0);
+  const { stats, updateStats } = useAppState();
   
-  // User stats
-  const [streak, setStreak] = useState(3);
-  const [level, setLevel] = useState(2);
-  const [xp, setXp] = useState(125);
-  const [xpForNextLevel, setXpForNextLevel] = useState(200);
-
-  // Load stats from localStorage
-  useEffect(() => {
-    const savedStats = getStats();
-    setFocusSessions(savedStats.focusSessions);
-    setTasksCompleted(savedStats.tasksCompleted);
-    setStreak(savedStats.streak);
-    setLevel(savedStats.level);
-    setXp(savedStats.xp);
-    setXpForNextLevel(savedStats.xpForNextLevel);
-  }, []);
-
   // Function to handle XP gain and potential level up
   const handleXpGain = (amount: number) => {
-    const newXp = xp + amount;
-    let newLevel = level;
-    let newXpForNextLevel = xpForNextLevel;
+    const newXp = stats.xp + amount;
+    let newLevel = stats.level;
+    let newXpForNextLevel = stats.xpForNextLevel;
     
     // Check if leveled up
-    if (newXp >= xpForNextLevel) {
-      newLevel = level + 1;
-      newXpForNextLevel = Math.round(xpForNextLevel * 1.5); // Increase XP needed for next level
+    if (newXp >= stats.xpForNextLevel) {
+      newLevel = stats.level + 1;
+      newXpForNextLevel = Math.round(stats.xpForNextLevel * 1.5); // Increase XP needed for next level
       
       toast({
         title: "Level Up!",
@@ -59,48 +40,36 @@ const Index = () => {
     }
     
     // Update state
-    setXp(newXp);
-    setLevel(newLevel);
-    setXpForNextLevel(newXpForNextLevel);
-    
-    // Update localStorage
-    saveStats({
-      focusSessions,
-      tasksCompleted,
-      streak,
+    const newStats = {
+      ...stats,
       level: newLevel,
       xp: newXp,
       xpForNextLevel: newXpForNextLevel
-    });
+    };
+    
+    updateStats(newStats);
     
     return { level: newLevel, xp: newXp };
   };
 
   const handleTaskComplete = (taskId: string, completed: boolean) => {
     if (completed) {
-      const newTasksCompleted = tasksCompleted + 1;
-      setTasksCompleted(newTasksCompleted);
+      const newTasksCompleted = stats.tasksCompleted + 1;
       
       // Add XP for completing a task
       handleXpGain(10);
       
-      // Update tasksCompleted in localStorage
-      const stats = getStats();
-      saveStats({
+      // Update tasksCompleted in state
+      updateStats({
         ...stats,
         tasksCompleted: newTasksCompleted
       });
     } else {
-      const newTasksCompleted = Math.max(0, tasksCompleted - 1);
-      setTasksCompleted(newTasksCompleted);
+      const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
+      const newXp = Math.max(0, stats.xp - 10);
       
-      // Remove XP for uncompleting a task
-      const newXp = Math.max(0, xp - 10);
-      setXp(newXp);
-      
-      // Update localStorage
-      const stats = getStats();
-      saveStats({
+      // Update state
+      updateStats({
         ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
@@ -131,25 +100,20 @@ const Index = () => {
       handleXpGain(15); // Calendar tasks give more XP
       
       // Update tasksCompleted in state and localStorage
-      const newTasksCompleted = tasksCompleted + 1;
-      setTasksCompleted(newTasksCompleted);
+      const newTasksCompleted = stats.tasksCompleted + 1;
       
-      const stats = getStats();
-      saveStats({
+      updateStats({
         ...stats,
         tasksCompleted: newTasksCompleted
       });
     } else {
       // Remove XP for uncompleting a calendar task
-      const newXp = Math.max(0, xp - 15);
-      setXp(newXp);
+      const newXp = Math.max(0, stats.xp - 15);
       
       // Update localStorage
-      const newTasksCompleted = Math.max(0, tasksCompleted - 1);
-      setTasksCompleted(newTasksCompleted);
+      const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       
-      const stats = getStats();
-      saveStats({
+      updateStats({
         ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
@@ -158,15 +122,13 @@ const Index = () => {
   };
 
   const handleSessionComplete = () => {
-    const newFocusSessions = focusSessions + 1;
-    setFocusSessions(newFocusSessions);
+    const newFocusSessions = stats.focusSessions + 1;
     
     // Add XP for completing a focus session
     handleXpGain(25);
     
-    // Update localStorage
-    const stats = getStats();
-    saveStats({
+    // Update state
+    updateStats({
       ...stats,
       focusSessions: newFocusSessions
     });
@@ -187,12 +149,11 @@ const Index = () => {
       handleXpGain(5); // Prayer completion gives 5 XP
     } else {
       // Remove XP for uncompleting a prayer
-      const newXp = Math.max(0, xp - 5);
-      setXp(newXp);
+      const newXp = Math.max(0, stats.xp - 5);
       
       // Update localStorage
-      saveStats({
-        ...getStats(),
+      updateStats({
+        ...stats,
         xp: newXp
       });
     }
@@ -229,15 +190,7 @@ const Index = () => {
           </div>
           
           <div className="space-y-6">
-            <UserStats 
-              streak={streak}
-              tasksCompleted={tasksCompleted}
-              focusSessions={focusSessions}
-              level={level}
-              xp={xp}
-              xpForNextLevel={xpForNextLevel}
-            />
-            
+            <UserStats />
             <FocusTimer onSessionComplete={handleSessionComplete} />
           </div>
         </div>

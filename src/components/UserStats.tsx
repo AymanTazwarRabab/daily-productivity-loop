@@ -1,62 +1,30 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { getStats, saveStats } from '@/utils/localStorage';
+import { useAppState } from '@/contexts/AppStateContext';
 
 interface UserStatsProps {
-  streak: number;
-  tasksCompleted: number;
-  focusSessions: number;
-  level: number;
-  xp: number;
-  xpForNextLevel: number;
+  streak?: number;
+  tasksCompleted?: number;
+  focusSessions?: number;
+  level?: number;
+  xp?: number;
+  xpForNextLevel?: number;
 }
 
-const UserStats: React.FC<UserStatsProps> = ({ 
-  streak: initialStreak,
-  tasksCompleted: initialTasksCompleted,
-  focusSessions: initialFocusSessions,
-  level: initialLevel,
-  xp: initialXp,
-  xpForNextLevel: initialXpForNextLevel
-}) => {
-  // Load stats from localStorage if available
-  useEffect(() => {
-    const savedStats = getStats();
-    
-    // Use saved stats or props as initial values
-    const streak = savedStats.streak || initialStreak;
-    const tasksCompleted = savedStats.tasksCompleted || initialTasksCompleted;
-    const focusSessions = savedStats.focusSessions || initialFocusSessions;
-    const level = savedStats.level || initialLevel;
-    const xp = savedStats.xp || initialXp;
-    const xpForNextLevel = savedStats.xpForNextLevel || initialXpForNextLevel;
-    
-    // Save the merged stats back to localStorage
-    saveStats({
-      streak,
-      tasksCompleted,
-      focusSessions,
-      level,
-      xp,
-      xpForNextLevel
-    });
-  }, [initialStreak, initialTasksCompleted, initialFocusSessions, initialLevel, initialXp, initialXpForNextLevel]);
+const UserStats: React.FC<UserStatsProps> = (props) => {
+  // Get stats from context, fallback to props for backward compatibility
+  const { stats } = useAppState();
+  
+  const streak = props.streak ?? stats.streak;
+  const tasksCompleted = props.tasksCompleted ?? stats.tasksCompleted;
+  const focusSessions = props.focusSessions ?? stats.focusSessions;
+  const level = props.level ?? stats.level;
+  const xp = props.xp ?? stats.xp;
+  const xpForNextLevel = props.xpForNextLevel ?? stats.xpForNextLevel;
 
-  // Subscribe to changes in props to update localStorage
-  useEffect(() => {
-    saveStats({
-      streak: initialStreak,
-      tasksCompleted: initialTasksCompleted,
-      focusSessions: initialFocusSessions,
-      level: initialLevel,
-      xp: initialXp,
-      xpForNextLevel: initialXpForNextLevel
-    });
-  }, [initialStreak, initialTasksCompleted, initialFocusSessions, initialLevel, initialXp, initialXpForNextLevel]);
-
-  const progressPercent = (initialXp / initialXpForNextLevel) * 100;
+  const progressPercent = (xp / xpForNextLevel) * 100;
 
   return (
     <Card>
@@ -67,9 +35,9 @@ const UserStats: React.FC<UserStatsProps> = ({
         <div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center">
-              <span className="text-lg font-bold mr-2">Level {initialLevel}</span>
+              <span className="text-lg font-bold mr-2">Level {level}</span>
               <div className="bg-primary/10 text-primary text-xs rounded-full px-2 py-0.5">
-                {initialXp} / {initialXpForNextLevel} XP
+                {xp} / {xpForNextLevel} XP
               </div>
             </div>
           </div>
@@ -78,15 +46,15 @@ const UserStats: React.FC<UserStatsProps> = ({
         
         <div className="grid grid-cols-3 gap-4">
           <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold">{initialStreak}</span>
+            <span className="text-2xl font-bold">{streak}</span>
             <span className="text-xs text-muted-foreground">Day Streak</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold">{initialTasksCompleted}</span>
+            <span className="text-2xl font-bold">{tasksCompleted}</span>
             <span className="text-xs text-muted-foreground">Tasks Done</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold">{initialFocusSessions}</span>
+            <span className="text-2xl font-bold">{focusSessions}</span>
             <span className="text-xs text-muted-foreground">Focus Sessions</span>
           </div>
         </div>

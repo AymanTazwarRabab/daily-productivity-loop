@@ -1,24 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { getStats, saveStats, getSettings, saveSettings, applySettings } from '@/utils/localStorage';
+import { saveSettings, applySettings } from '@/utils/localStorage';
 import { Settings as SettingsIcon, RefreshCcw, Save } from 'lucide-react';
+import { useAppState } from '@/contexts/AppStateContext';
 
 const Settings = () => {
   const { toast } = useToast();
-  const [settings, setSettings] = useState(getSettings());
-  const [stats, setStats] = useState(getStats());
-  const [pendingSettings, setPendingSettings] = useState(getSettings());
+  const { stats, updateStats, settings } = useAppState();
+  const [pendingSettings, setPendingSettings] = useState(settings);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
@@ -63,7 +61,6 @@ const Settings = () => {
   };
 
   const handleSaveChanges = () => {
-    setSettings(pendingSettings);
     saveSettings(pendingSettings);
     
     // Apply settings immediately
@@ -83,8 +80,7 @@ const Settings = () => {
       xp: 0,
       xpForNextLevel: 100
     };
-    setStats(newStats);
-    saveStats(newStats);
+    updateStats(newStats);
     toast({
       title: "Progress reset",
       description: "Your level and XP have been reset to 1",
@@ -100,8 +96,7 @@ const Settings = () => {
       xp: 0,
       xpForNextLevel: 100
     };
-    setStats(newStats);
-    saveStats(newStats);
+    updateStats(newStats);
     toast({
       title: "Stats reset",
       description: "All your statistics have been reset",

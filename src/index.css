@@ -29,8 +29,9 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    /* Darkened border colors for light mode */
+    --border: 214.3 31.8% 82%; /* Darkened from 91.4% to 82% */
+    --input: 214.3 31.8% 82%; /* Darkened from 91.4% to 82% */
     --ring: 222.2 84% 4.9%;
  
     --radius: 0.5rem;
@@ -73,6 +74,23 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Enhanced visibility for borders and separators in light mode */
+  .light .border,
+  html:not(.dark) .border {
+    @apply border-gray-300;
+  }
+  
+  .light .separator,
+  html:not(.dark) .separator {
+    @apply bg-gray-300;
+  }
+  
+  /* Improve contrast for cards in light mode */
+  .light .card,
+  html:not(.dark) .card {
+    @apply shadow-md;
   }
 }
 
