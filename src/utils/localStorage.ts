@@ -32,6 +32,11 @@ export interface StoredStats {
 export interface StoredSettings {
   defaultFocusTime: number;
   breakTime: number;
+  notifications: boolean;
+  sound: boolean;
+  theme: string;
+  fontSize: string;
+  compactMode: boolean;
 }
 
 // Storage keys
@@ -115,6 +120,11 @@ export const getSettings = (): StoredSettings => {
   const settingsJson = localStorage.getItem(SETTINGS_KEY);
   return settingsJson ? JSON.parse(settingsJson) : {
     defaultFocusTime: 25,
-    breakTime: 5
+    breakTime: 5,
+    notifications: true,
+    sound: true,
+    theme: 'system',
+    fontSize: 'medium',
+    compactMode: false
   };
 };
