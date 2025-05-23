@@ -9,17 +9,16 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import Statistics from "./pages/Statistics";
 import React, { useEffect } from "react";
+import { getSettings, applySettings } from "@/utils/localStorage";
 
 function App() {
   // Create a client inside the component to ensure React context works properly
   const [queryClient] = React.useState(() => new QueryClient());
 
-  // Check for dark mode preference on initial load
+  // Apply stored settings on initial app load
   useEffect(() => {
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    }
+    const settings = getSettings();
+    applySettings(settings);
   }, []);
 
   return (

@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { getStats, saveStats, getSettings, saveSettings } from '@/utils/localStorage';
+import { getStats, saveStats, getSettings, saveSettings, applySettings } from '@/utils/localStorage';
 import { Settings as SettingsIcon, RefreshCcw, Save } from 'lucide-react';
 
 const Settings = () => {
@@ -65,6 +65,10 @@ const Settings = () => {
   const handleSaveChanges = () => {
     setSettings(pendingSettings);
     saveSettings(pendingSettings);
+    
+    // Apply settings immediately
+    applySettings(pendingSettings);
+    
     setHasChanges(false);
     toast({
       title: "Settings saved",

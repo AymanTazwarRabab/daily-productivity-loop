@@ -1,3 +1,4 @@
+
 // Type definitions for our stored data
 export interface StoredTask {
   id: string;
@@ -45,6 +46,7 @@ const CALENDAR_TASKS_KEY = 'productivity_calendar_tasks';
 const REFLECTIONS_KEY = 'productivity_reflections';
 const STATS_KEY = 'productivity_stats';
 const SETTINGS_KEY = 'productivity_settings';
+const LAST_SETTINGS_CHANGE_KEY = 'productivity_settings_last_change';
 
 // Save functions
 export const saveTasks = (tasks: StoredTask[]) => {
@@ -78,6 +80,12 @@ export const saveStats = (stats: StoredStats) => {
 
 export const saveSettings = (settings: StoredSettings) => {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  
+  // Save timestamp to track when settings were last changed
+  localStorage.setItem(LAST_SETTINGS_CHANGE_KEY, Date.now().toString());
+  
+  // Apply settings immediately
+  applySettings(settings);
 };
 
 // Get functions
@@ -118,7 +126,7 @@ export const getStats = (): StoredStats => {
 
 export const getSettings = (): StoredSettings => {
   const settingsJson = localStorage.getItem(SETTINGS_KEY);
-  return settingsJson ? JSON.parse(settingsJson) : {
+  const defaultSettings = {
     defaultFocusTime: 25,
     breakTime: 5,
     notifications: true,
@@ -127,4 +135,38 @@ export const getSettings = (): StoredSettings => {
     fontSize: 'medium',
     compactMode: false
   };
+  return settingsJson ? JSON.parse(settingsJson) : defaultSettings;
+};
+
+// Get the timestamp when settings were last changed
+export const getLastSettingsChangeTime = (): number => {
+  const timestamp = localStorage.getItem(LAST_SETTINGS_CHANGE_KEY);
+  return timestamp ? parseInt(timestamp, 10) : 0;
+};
+
+// Apply settings throughout the application
+export const applySettings = (settings: StoredSettings) => {
+  // Apply theme
+  if (settings.theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else if (settings.theme === 'light') {
+    document.documentElement.classList.remove('dark');
+  } else if (settings.theme === 'system') {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+  
+  // Apply font size
+  document.documentElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+  document.documentElement.classList.add(`text-size-${settings.fontSize}`);
+  
+  // Apply compact mode if needed
+  if (settings.compactMode) {
+    document.documentElement.classList.add('compact-mode');
+  } else {
+    document.documentElement.classList.remove('compact-mode');
+  }
 };
