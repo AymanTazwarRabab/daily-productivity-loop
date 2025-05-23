@@ -100,11 +100,16 @@ const FocusTimer: React.FC<FocusTimerProps> = ({ onSessionComplete }) => {
   };
 
   const saveDefaultSettings = () => {
-    const settings = {
+    // Get current settings first
+    const currentSettings = getSettings();
+    // Then update only the properties we're managing
+    const updatedSettings = {
+      ...currentSettings,
       defaultFocusTime,
       breakTime: breakMinutes
     };
-    saveSettings(settings);
+    // Save the updated settings
+    saveSettings(updatedSettings);
     setShowSettings(false);
   };
 
