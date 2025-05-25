@@ -15,7 +15,7 @@ import { useAppState } from '@/contexts/AppStateContext';
 
 const Settings = () => {
   const { toast } = useToast();
-  const { stats, updateStats, settings } = useAppState();
+  const { stats, updateStats, settings, updateSettings } = useAppState();
   const [pendingSettings, setPendingSettings] = useState(settings);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -61,11 +61,7 @@ const Settings = () => {
   };
 
   const handleSaveChanges = () => {
-    saveSettings(pendingSettings);
-    
-    // Apply settings immediately
-    applySettings(pendingSettings);
-    
+    updateSettings(pendingSettings);
     setHasChanges(false);
     toast({
       title: "Settings saved",

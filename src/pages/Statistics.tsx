@@ -1,17 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { getStats, getReflections, getTasks, getCalendarTasks } from '@/utils/localStorage';
+import { getReflections, getTasks, getCalendarTasks } from '@/utils/localStorage';
 import { BarChart, PieChart, LineChart, Bar, Pie, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Award, Star } from 'lucide-react';
+import { useAppState } from '@/contexts/AppStateContext';
 
 const Statistics = () => {
-  const stats = getStats();
+  const { stats, refreshStats } = useAppState();
   const reflections = getReflections();
   const tasks = getTasks();
   const calendarTasks = getCalendarTasks();
+  
+  // Refresh stats when component mounts to ensure latest data
+  useEffect(() => {
+    refreshStats();
+  }, [refreshStats]);
   
   const completedTasks = tasks.filter(task => task.completed).length;
   const totalTasks = tasks.length;

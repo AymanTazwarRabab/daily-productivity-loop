@@ -46,38 +46,32 @@ const Index = () => {
       });
     }
     
-    // Update state with all current stats plus the new values
-    const newStats = {
-      ...stats,
-      level: newLevel,
-      xp: newXp,
-      xpForNextLevel: newXpForNextLevel
-    };
-    
-    console.log('Updating to new stats:', newStats);
-    updateStats(newStats);
-    
-    return { level: newLevel, xp: newXp };
+    return { level: newLevel, xp: newXp, xpForNextLevel: newXpForNextLevel };
   };
 
   const handleTaskComplete = (taskId: string, completed: boolean) => {
     console.log('Task completion:', taskId, completed);
     
     if (completed) {
-      // Add XP for completing a task
-      handleXpGain(10);
+      // Calculate new XP and level
+      const { level, xp, xpForNextLevel } = handleXpGain(10);
       
-      // Update tasksCompleted in state
+      // Update all stats in a single call
       const newStats = {
         ...stats,
-        tasksCompleted: stats.tasksCompleted + 1
+        tasksCompleted: stats.tasksCompleted + 1,
+        level,
+        xp,
+        xpForNextLevel
       };
+      
+      console.log('Updating to new stats:', newStats);
       updateStats(newStats);
     } else {
       const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       const newXp = Math.max(0, stats.xp - 10);
       
-      // Update state
+      // Update state in a single call
       const newStats = {
         ...stats,
         tasksCompleted: newTasksCompleted,
@@ -107,13 +101,16 @@ const Index = () => {
     console.log('Calendar task completion:', taskId, completed);
     
     if (completed) {
-      // Add XP for completing a calendar task
-      handleXpGain(15); // Calendar tasks give more XP
+      // Calculate new XP and level for calendar tasks (15 XP)
+      const { level, xp, xpForNextLevel } = handleXpGain(15);
       
-      // Update tasksCompleted in state
+      // Update all stats in a single call
       const newStats = {
         ...stats,
-        tasksCompleted: stats.tasksCompleted + 1
+        tasksCompleted: stats.tasksCompleted + 1,
+        level,
+        xp,
+        xpForNextLevel
       };
       updateStats(newStats);
     } else {
@@ -133,13 +130,16 @@ const Index = () => {
   const handleSessionComplete = () => {
     console.log('Focus session completed');
     
-    // Add XP for completing a focus session
-    handleXpGain(25);
+    // Calculate new XP and level for focus sessions (25 XP)
+    const { level, xp, xpForNextLevel } = handleXpGain(25);
     
-    // Update state
+    // Update all stats in a single call
     const newStats = {
       ...stats,
-      focusSessions: stats.focusSessions + 1
+      focusSessions: stats.focusSessions + 1,
+      level,
+      xp,
+      xpForNextLevel
     };
     updateStats(newStats);
   };
@@ -157,7 +157,16 @@ const Index = () => {
     console.log('Prayer completion:', prayerName, completed);
     
     if (completed) {
-      handleXpGain(5); // Prayer completion gives 5 XP
+      // Calculate new XP and level for prayers (5 XP)
+      const { level, xp, xpForNextLevel } = handleXpGain(5);
+      
+      const newStats = {
+        ...stats,
+        level,
+        xp,
+        xpForNextLevel
+      };
+      updateStats(newStats);
     } else {
       // Remove XP for uncompleting a prayer
       const newXp = Math.max(0, stats.xp - 5);
