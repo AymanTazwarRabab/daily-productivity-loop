@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import DailyPlan from '@/components/DailyPlan';
@@ -15,8 +16,12 @@ const Index = () => {
   const [date] = useState(new Date());
   const { stats, updateStats } = useAppState();
   
+  console.log('Current stats in Index:', stats);
+  
   // Function to handle XP gain and potential level up
   const handleXpGain = (amount: number) => {
+    console.log('Adding XP:', amount, 'Current XP:', stats.xp);
+    
     const newXp = stats.xp + amount;
     let newLevel = stats.level;
     let newXpForNextLevel = stats.xpForNextLevel;
@@ -24,7 +29,9 @@ const Index = () => {
     // Check if leveled up
     if (newXp >= stats.xpForNextLevel) {
       newLevel = stats.level + 1;
-      newXpForNextLevel = Math.round(stats.xpForNextLevel * 1.5); // Increase XP needed for next level
+      newXpForNextLevel = Math.round(stats.xpForNextLevel * 1.5);
+      
+      console.log('Level up! New level:', newLevel, 'New XP for next level:', newXpForNextLevel);
       
       toast({
         title: "Level Up!",
@@ -39,7 +46,7 @@ const Index = () => {
       });
     }
     
-    // Update state
+    // Update state with all current stats plus the new values
     const newStats = {
       ...stats,
       level: newLevel,
@@ -47,33 +54,36 @@ const Index = () => {
       xpForNextLevel: newXpForNextLevel
     };
     
+    console.log('Updating to new stats:', newStats);
     updateStats(newStats);
     
     return { level: newLevel, xp: newXp };
   };
 
   const handleTaskComplete = (taskId: string, completed: boolean) => {
+    console.log('Task completion:', taskId, completed);
+    
     if (completed) {
-      const newTasksCompleted = stats.tasksCompleted + 1;
-      
       // Add XP for completing a task
       handleXpGain(10);
       
       // Update tasksCompleted in state
-      updateStats({
+      const newStats = {
         ...stats,
-        tasksCompleted: newTasksCompleted
-      });
+        tasksCompleted: stats.tasksCompleted + 1
+      };
+      updateStats(newStats);
     } else {
       const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       const newXp = Math.max(0, stats.xp - 10);
       
       // Update state
-      updateStats({
+      const newStats = {
         ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
-      });
+      };
+      updateStats(newStats);
     }
   };
 
@@ -94,44 +104,44 @@ const Index = () => {
   };
 
   const handleCalendarTaskComplete = (taskId: string, completed: boolean) => {
-    // Handle calendar task completion separately to add XP
+    console.log('Calendar task completion:', taskId, completed);
+    
     if (completed) {
       // Add XP for completing a calendar task
       handleXpGain(15); // Calendar tasks give more XP
       
-      // Update tasksCompleted in state and localStorage
-      const newTasksCompleted = stats.tasksCompleted + 1;
-      
-      updateStats({
+      // Update tasksCompleted in state
+      const newStats = {
         ...stats,
-        tasksCompleted: newTasksCompleted
-      });
+        tasksCompleted: stats.tasksCompleted + 1
+      };
+      updateStats(newStats);
     } else {
       // Remove XP for uncompleting a calendar task
+      const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       const newXp = Math.max(0, stats.xp - 15);
       
-      // Update localStorage
-      const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
-      
-      updateStats({
+      const newStats = {
         ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
-      });
+      };
+      updateStats(newStats);
     }
   };
 
   const handleSessionComplete = () => {
-    const newFocusSessions = stats.focusSessions + 1;
+    console.log('Focus session completed');
     
     // Add XP for completing a focus session
     handleXpGain(25);
     
     // Update state
-    updateStats({
+    const newStats = {
       ...stats,
-      focusSessions: newFocusSessions
-    });
+      focusSessions: stats.focusSessions + 1
+    };
+    updateStats(newStats);
   };
 
   const handleSaveReflection = (reflection: { wins: string; improvements: string }) => {
@@ -144,18 +154,19 @@ const Index = () => {
   };
 
   const handlePrayerComplete = (prayerName: string, completed: boolean) => {
-    // Add XP for completing prayers
+    console.log('Prayer completion:', prayerName, completed);
+    
     if (completed) {
       handleXpGain(5); // Prayer completion gives 5 XP
     } else {
       // Remove XP for uncompleting a prayer
       const newXp = Math.max(0, stats.xp - 5);
       
-      // Update localStorage
-      updateStats({
+      const newStats = {
         ...stats,
         xp: newXp
-      });
+      };
+      updateStats(newStats);
     }
   };
 

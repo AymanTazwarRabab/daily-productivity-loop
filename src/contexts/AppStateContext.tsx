@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getStats, saveStats, getSettings, StoredStats, StoredSettings } from '@/utils/localStorage';
+import { getStats, saveStats, getSettings, saveSettings, StoredStats, StoredSettings } from '@/utils/localStorage';
 
 type AppStateContextType = {
   stats: StoredStats;
@@ -39,13 +39,16 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Update local storage whenever stats change
   const updateStats = (newStats: StoredStats) => {
+    console.log('Updating stats:', newStats);
     setStats(newStats);
     saveStats(newStats);
   };
 
-  // Update settings
+  // Update settings and save to localStorage
   const updateSettings = (newSettings: StoredSettings) => {
+    console.log('Updating settings:', newSettings);
     setSettings(newSettings);
+    saveSettings(newSettings);
   };
 
   return (
