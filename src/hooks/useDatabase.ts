@@ -1,7 +1,6 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 // Types for our data
 export interface DailyTask {
@@ -68,7 +67,6 @@ export interface AppSettings {
 }
 
 export const useDatabase = () => {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Daily Tasks
@@ -199,10 +197,8 @@ export const useDatabase = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyTasks'] });
-      toast({
-        title: "Task added",
+      toast.success("Task added", {
         description: "New daily task has been added",
-        duration: 2000,
       });
     }
   });
@@ -241,10 +237,8 @@ export const useDatabase = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['calendarTasks'] });
-      toast({
-        title: "Calendar task added",
+      toast.success("Calendar task added", {
         description: "New calendar task has been scheduled",
-        duration: 2000,
       });
     }
   });
@@ -351,10 +345,8 @@ export const useDatabase = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reflections'] });
-      toast({
-        title: "Reflection saved",
+      toast.success("Reflection saved", {
         description: "Your daily reflection has been saved",
-        duration: 2000,
       });
     }
   });
@@ -396,10 +388,8 @@ export const useDatabase = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appSettings'] });
-      toast({
-        title: "Settings saved",
+      toast.success("Settings saved", {
         description: "Your settings have been updated",
-        duration: 2000,
       });
     }
   });

@@ -8,12 +8,11 @@ import UserStats from '@/components/UserStats';
 import TaskCalendar from '@/components/TaskCalendar';
 import PrayerTimes from '@/components/PrayerTimes';
 import Navbar from '@/components/Navbar';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAppState } from '@/contexts/AppStateContext';
 import { useDatabase } from '@/hooks/useDatabase';
 
 const Index = () => {
-  const { toast } = useToast();
   const [date] = useState(new Date());
   const { stats, updateStats, isLoading } = useAppState();
   const { 
@@ -43,16 +42,12 @@ const Index = () => {
       
       console.log('Level up! New level:', newLevel, 'New XP for next level:', newXpForNextLevel);
       
-      toast({
-        title: "Level Up!",
+      toast.success("Level Up!", {
         description: `Congratulations! You're now level ${newLevel}!`,
-        duration: 5000,
       });
     } else {
-      toast({
-        title: "XP Gained!",
+      toast.success("XP Gained!", {
         description: `You earned ${amount} XP. Keep it up!`,
-        duration: 3000,
       });
     }
     
@@ -107,10 +102,8 @@ const Index = () => {
       priority: task.priority || 2
     });
     
-    toast({
-      title: "Calendar task added",
+    toast.success("Calendar task added", {
       description: `Task "${task.title}" scheduled for ${task.date.toLocaleDateString()}`,
-      duration: 2000,
     });
   };
 
