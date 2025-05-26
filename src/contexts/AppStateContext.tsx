@@ -1,13 +1,44 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getStats, saveStats, getSettings, saveSettings, StoredStats, StoredSettings, applySettings } from '@/utils/localStorage';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useDatabase } from '@/hooks/useDatabase';
 
 type AppStateContextType = {
-  stats: StoredStats;
-  updateStats: (newStats: StoredStats) => void;
-  settings: StoredSettings;
-  updateSettings: (newSettings: StoredSettings) => void;
+  stats: {
+    focusSessions: number;
+    tasksCompleted: number;
+    streak: number;
+    level: number;
+    xp: number;
+    xpForNextLevel: number;
+  };
+  updateStats: (newStats: {
+    focusSessions?: number;
+    tasksCompleted?: number;
+    streak?: number;
+    level?: number;
+    xp?: number;
+    xpForNextLevel?: number;
+  }) => void;
+  settings: {
+    defaultFocusTime: number;
+    breakTime: number;
+    notifications: boolean;
+    sound: boolean;
+    theme: string;
+    fontSize: string;
+    compactMode: boolean;
+  };
+  updateSettings: (newSettings: {
+    defaultFocusTime?: number;
+    breakTime?: number;
+    notifications?: boolean;
+    sound?: boolean;
+    theme?: string;
+    fontSize?: string;
+    compactMode?: boolean;
+  }) => void;
   refreshStats: () => void;
+  isLoading: boolean;
 };
 
 const defaultContext: AppStateContextType = {
@@ -30,44 +61,104 @@ const defaultContext: AppStateContextType = {
     compactMode: false
   },
   updateSettings: () => {},
-  refreshStats: () => {}
+  refreshStats: () => {},
+  isLoading: false
 };
 
 export const AppStateContext = createContext<AppStateContextType>(defaultContext);
 
 export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [stats, setStats] = useState<StoredStats>(getStats());
-  const [settings, setSettings] = useState<StoredSettings>(getSettings());
+  const { 
+    userStats, 
+    appSettings, 
+    updateUserStats, 
+    updateAppSettings,
+    loadingUserStats,
+    loadingAppSettings 
+  } = useDatabase();
 
-  // Apply settings on initial load
-  useEffect(() => {
-    applySettings(settings);
-  }, []);
+  const isLoading = loadingUserStats || loadingAppSettings;
 
-  // Update local storage whenever stats change
-  const updateStats = (newStats: StoredStats) => {
+  // Convert database format to component format
+  const stats = userStats ? {
+    focusSessions: userStats.focus_sessions,
+    tasksCompleted: userStats.tasks_completed,
+    streak: userStats.streak,
+    level: userStats.level,
+    xp: userStats.xp,
+    xpForNextLevel: userStats.xp_for_next_level
+  } : defaultContext.stats;
+
+  const settings = appSettings ? {
+    defaultFocusTime: appSettings.default_focus_time,
+    breakTime: appSettings.break_time,
+    notifications: appSettings.notifications,
+    sound: appSettings.sound,
+    theme: appSettings.theme,
+    fontSize: appSettings.font_size,
+    compactMode: appSettings.compact_mode
+  } : defaultContext.settings;
+
+  const handleUpdateStats = (newStats: {
+    focusSessions?: number;
+    tasksCompleted?: number;
+    streak?: number;
+    level?: number;
+    xp?: number;
+    xpForNextLevel?: number;
+  }) => {
     console.log('AppStateContext - Updating stats:', newStats);
-    setStats(newStats);
-    saveStats(newStats);
+    
+    // Convert to database format
+    const dbStats: any = {};
+    if (newStats.focusSessions !== undefined) dbStats.focus_sessions = newStats.focusSessions;
+    if (newStats.tasksCompleted !== undefined) dbStats.tasks_completed = newStats.tasksCompleted;
+    if (newStats.streak !== undefined) dbStats.streak = newStats.streak;
+    if (newStats.level !== undefined) dbStats.level = newStats.level;
+    if (newStats.xp !== undefined) dbStats.xp = newStats.xp;
+    if (newStats.xpForNextLevel !== undefined) dbStats.xp_for_next_level = newStats.xpForNextLevel;
+    
+    updateUserStats(dbStats);
   };
 
-  // Refresh stats from localStorage
-  const refreshStats = () => {
-    const freshStats = getStats();
-    console.log('AppStateContext - Refreshing stats:', freshStats);
-    setStats(freshStats);
-  };
-
-  // Update settings and save to localStorage
-  const updateSettings = (newSettings: StoredSettings) => {
+  const handleUpdateSettings = (newSettings: {
+    defaultFocusTime?: number;
+    breakTime?: number;
+    notifications?: boolean;
+    sound?: boolean;
+    theme?: string;
+    fontSize?: string;
+    compactMode?: boolean;
+  }) => {
     console.log('AppStateContext - Updating settings:', newSettings);
-    setSettings(newSettings);
-    saveSettings(newSettings);
-    applySettings(newSettings);
+    
+    // Convert to database format
+    const dbSettings: any = {};
+    if (newSettings.defaultFocusTime !== undefined) dbSettings.default_focus_time = newSettings.defaultFocusTime;
+    if (newSettings.breakTime !== undefined) dbSettings.break_time = newSettings.breakTime;
+    if (newSettings.notifications !== undefined) dbSettings.notifications = newSettings.notifications;
+    if (newSettings.sound !== undefined) dbSettings.sound = newSettings.sound;
+    if (newSettings.theme !== undefined) dbSettings.theme = newSettings.theme;
+    if (newSettings.fontSize !== undefined) dbSettings.font_size = newSettings.fontSize;
+    if (newSettings.compactMode !== undefined) dbSettings.compact_mode = newSettings.compactMode;
+    
+    updateAppSettings(dbSettings);
+  };
+
+  const refreshStats = () => {
+    console.log('AppStateContext - Refreshing stats');
+    // The useQuery will automatically refetch when invalidated
   };
 
   return (
-    <AppStateContext.Provider value={{ stats, updateStats, settings, updateSettings, refreshStats }}>
+    <AppStateContext.Provider value={{ 
+      stats, 
+      updateStats: handleUpdateStats, 
+      settings, 
+      updateSettings: handleUpdateSettings, 
+      refreshStats,
+      isLoading
+    }}>
       {children}
     </AppStateContext.Provider>
   );

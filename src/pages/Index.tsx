@@ -10,11 +10,21 @@ import PrayerTimes from '@/components/PrayerTimes';
 import Navbar from '@/components/Navbar';
 import { useToast } from '@/hooks/use-toast';
 import { useAppState } from '@/contexts/AppStateContext';
+import { useDatabase } from '@/hooks/useDatabase';
 
 const Index = () => {
   const { toast } = useToast();
   const [date] = useState(new Date());
-  const { stats, updateStats } = useAppState();
+  const { stats, updateStats, isLoading } = useAppState();
+  const { 
+    updateDailyTask, 
+    addDailyTask, 
+    updateCalendarTask, 
+    addCalendarTask, 
+    updatePrayer, 
+    saveReflection,
+    updateUserStats
+  } = useDatabase();
   
   console.log('Current stats in Index:', stats);
   
@@ -56,9 +66,11 @@ const Index = () => {
       // Calculate new XP and level
       const { level, xp, xpForNextLevel } = handleXpGain(10);
       
+      // Update task in database
+      updateDailyTask({ id: taskId, updates: { completed: true } });
+      
       // Update all stats in a single call
       const newStats = {
-        ...stats,
         tasksCompleted: stats.tasksCompleted + 1,
         level,
         xp,
@@ -68,12 +80,14 @@ const Index = () => {
       console.log('Updating to new stats:', newStats);
       updateStats(newStats);
     } else {
+      // Update task in database
+      updateDailyTask({ id: taskId, updates: { completed: false } });
+      
       const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       const newXp = Math.max(0, stats.xp - 10);
       
       // Update state in a single call
       const newStats = {
-        ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
       };
@@ -81,15 +95,18 @@ const Index = () => {
     }
   };
 
-  const handleAddTask = () => {
-    toast({
-      title: "Task added",
-      description: "New task added to your daily plan",
-      duration: 2000,
-    });
+  const handleAddTask = (task: { title: string; priority?: number }) => {
+    addDailyTask(task);
   };
 
-  const handleCalendarTaskAdd = (task: any) => {
+  const handleCalendarTaskAdd = (task: { title: string; date: Date; priority?: number }) => {
+    const dateString = task.date.toISOString().split('T')[0];
+    addCalendarTask({
+      title: task.title,
+      date: dateString,
+      priority: task.priority || 2
+    });
+    
     toast({
       title: "Calendar task added",
       description: `Task "${task.title}" scheduled for ${task.date.toLocaleDateString()}`,
@@ -101,12 +118,14 @@ const Index = () => {
     console.log('Calendar task completion:', taskId, completed);
     
     if (completed) {
+      // Update task in database
+      updateCalendarTask({ id: taskId, updates: { completed: true } });
+      
       // Calculate new XP and level for calendar tasks (15 XP)
       const { level, xp, xpForNextLevel } = handleXpGain(15);
       
       // Update all stats in a single call
       const newStats = {
-        ...stats,
         tasksCompleted: stats.tasksCompleted + 1,
         level,
         xp,
@@ -114,12 +133,14 @@ const Index = () => {
       };
       updateStats(newStats);
     } else {
+      // Update task in database
+      updateCalendarTask({ id: taskId, updates: { completed: false } });
+      
       // Remove XP for uncompleting a calendar task
       const newTasksCompleted = Math.max(0, stats.tasksCompleted - 1);
       const newXp = Math.max(0, stats.xp - 15);
       
       const newStats = {
-        ...stats,
         tasksCompleted: newTasksCompleted,
         xp: newXp
       };
@@ -135,7 +156,6 @@ const Index = () => {
     
     // Update all stats in a single call
     const newStats = {
-      ...stats,
       focusSessions: stats.focusSessions + 1,
       level,
       xp,
@@ -145,23 +165,25 @@ const Index = () => {
   };
 
   const handleSaveReflection = (reflection: { wins: string; improvements: string }) => {
-    // No XP for reflections, just display a toast
-    toast({
-      title: "Reflection saved",
-      description: "Your daily reflection has been saved",
-      duration: 2000,
+    const dateString = date.toISOString().split('T')[0];
+    saveReflection({
+      date: dateString,
+      wins: reflection.wins,
+      improvements: reflection.improvements
     });
   };
 
   const handlePrayerComplete = (prayerName: string, completed: boolean) => {
     console.log('Prayer completion:', prayerName, completed);
     
+    // Update prayer in database
+    updatePrayer({ prayer_name: prayerName, completed });
+    
     if (completed) {
       // Calculate new XP and level for prayers (5 XP)
       const { level, xp, xpForNextLevel } = handleXpGain(5);
       
       const newStats = {
-        ...stats,
         level,
         xp,
         xpForNextLevel
@@ -172,17 +194,27 @@ const Index = () => {
       const newXp = Math.max(0, stats.xp - 5);
       
       const newStats = {
-        ...stats,
         xp: newXp
       };
       updateStats(newStats);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg">Loading your productivity dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <DashboardHeader userName="Productivity Pro" date={date} />
+        <DashboardHeader userName="Ayman Tazwar" date={date} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">

@@ -9,7 +9,195 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          break_time: number
+          compact_mode: boolean
+          created_at: string
+          default_focus_time: number
+          font_size: string
+          id: string
+          notifications: boolean
+          sound: boolean
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          break_time?: number
+          compact_mode?: boolean
+          created_at?: string
+          default_focus_time?: number
+          font_size?: string
+          id?: string
+          notifications?: boolean
+          sound?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Update: {
+          break_time?: number
+          compact_mode?: boolean
+          created_at?: string
+          default_focus_time?: number
+          font_size?: string
+          id?: string
+          notifications?: boolean
+          sound?: boolean
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      calendar_tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          date: string
+          id: string
+          priority: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          date: string
+          id?: string
+          priority?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          priority?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_reflections: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          improvements: string | null
+          updated_at: string
+          wins: string | null
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          improvements?: string | null
+          updated_at?: string
+          wins?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          improvements?: string | null
+          updated_at?: string
+          wins?: string | null
+        }
+        Relationships: []
+      }
+      daily_tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          date: string
+          id: string
+          priority: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          priority?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          id?: string
+          priority?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prayer_tracking: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          date: string
+          id: string
+          prayer_name: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          prayer_name: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          prayer_name?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          created_at: string
+          focus_sessions: number
+          id: string
+          level: number
+          streak: number
+          tasks_completed: number
+          updated_at: string
+          xp: number
+          xp_for_next_level: number
+        }
+        Insert: {
+          created_at?: string
+          focus_sessions?: number
+          id?: string
+          level?: number
+          streak?: number
+          tasks_completed?: number
+          updated_at?: string
+          xp?: number
+          xp_for_next_level?: number
+        }
+        Update: {
+          created_at?: string
+          focus_sessions?: number
+          id?: string
+          level?: number
+          streak?: number
+          tasks_completed?: number
+          updated_at?: string
+          xp?: number
+          xp_for_next_level?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
