@@ -77,14 +77,21 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['dailyTasks'],
     queryFn: async () => {
+      console.log('Fetching daily tasks...');
       const { data, error } = await supabase
         .from('daily_tasks')
         .select('*')
         .order('created_at', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching daily tasks:', error);
+        throw error;
+      }
+      console.log('Daily tasks fetched:', data);
       return data as DailyTask[];
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Calendar Tasks
@@ -95,14 +102,21 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['calendarTasks'],
     queryFn: async () => {
+      console.log('Fetching calendar tasks...');
       const { data, error } = await supabase
         .from('calendar_tasks')
         .select('*')
         .order('date', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching calendar tasks:', error);
+        throw error;
+      }
+      console.log('Calendar tasks fetched:', data);
       return data as CalendarTask[];
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Prayer Tracking
@@ -113,6 +127,7 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['prayerTracking'],
     queryFn: async () => {
+      console.log('Fetching prayer tracking...');
       const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('prayer_tracking')
@@ -120,9 +135,15 @@ export const useDatabase = () => {
         .eq('date', today)
         .order('created_at', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching prayer tracking:', error);
+        throw error;
+      }
+      console.log('Prayer tracking fetched:', data);
       return data as PrayerTracking[];
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Daily Reflections
@@ -133,14 +154,21 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['reflections'],
     queryFn: async () => {
+      console.log('Fetching reflections...');
       const { data, error } = await supabase
         .from('daily_reflections')
         .select('*')
         .order('date', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching reflections:', error);
+        throw error;
+      }
+      console.log('Reflections fetched:', data);
       return data as DailyReflection[];
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // User Stats
@@ -151,14 +179,22 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['userStats'],
     queryFn: async () => {
+      console.log('Fetching user stats...');
       const { data, error } = await supabase
         .from('user_stats')
         .select('*')
+        .limit(1)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user stats:', error);
+        throw error;
+      }
+      console.log('User stats fetched:', data);
       return data as UserStats;
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // App Settings
@@ -169,14 +205,22 @@ export const useDatabase = () => {
   } = useQuery({
     queryKey: ['appSettings'],
     queryFn: async () => {
+      console.log('Fetching app settings...');
       const { data, error } = await supabase
         .from('app_settings')
         .select('*')
+        .limit(1)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching app settings:', error);
+        throw error;
+      }
+      console.log('App settings fetched:', data);
       return data as AppSettings;
-    }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
 
   // Mutations

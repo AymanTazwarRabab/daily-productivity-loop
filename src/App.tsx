@@ -12,10 +12,17 @@ import React, { useEffect } from "react";
 import { getSettings, applySettings } from "@/utils/localStorage";
 import { AppStateProvider } from "./contexts/AppStateContext";
 
-function App() {
-  // Create a client inside the component to ensure React context works properly
-  const [queryClient] = React.useState(() => new QueryClient());
+// Create the query client outside the component to avoid recreation
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
+function App() {
   // Apply stored settings on initial app load
   useEffect(() => {
     const settings = getSettings();
