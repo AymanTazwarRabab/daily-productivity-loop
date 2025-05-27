@@ -71,41 +71,107 @@ export const useDatabase = () => {
 
   // Helper function to create initial user stats
   const createInitialUserStats = async () => {
-    const { data, error } = await supabase
-      .from('user_stats')
-      .insert([{
+    console.log('Creating initial user stats...');
+    try {
+      const { data, error } = await supabase
+        .from('user_stats')
+        .insert([{
+          focus_sessions: 0,
+          tasks_completed: 0,
+          streak: 0,
+          level: 1,
+          xp: 0,
+          xp_for_next_level: 100
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating initial user stats:', error);
+        // Return default stats if creation fails
+        return {
+          id: 'temp',
+          focus_sessions: 0,
+          tasks_completed: 0,
+          streak: 0,
+          level: 1,
+          xp: 0,
+          xp_for_next_level: 100,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      }
+      console.log('Initial user stats created successfully:', data);
+      return data;
+    } catch (err) {
+      console.error('Exception creating initial user stats:', err);
+      // Return default stats if creation fails
+      return {
+        id: 'temp',
         focus_sessions: 0,
         tasks_completed: 0,
         streak: 0,
         level: 1,
         xp: 0,
-        xp_for_next_level: 100
-      }])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+        xp_for_next_level: 100,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
   };
 
   // Helper function to create initial app settings
   const createInitialAppSettings = async () => {
-    const { data, error } = await supabase
-      .from('app_settings')
-      .insert([{
+    console.log('Creating initial app settings...');
+    try {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .insert([{
+          default_focus_time: 25,
+          break_time: 5,
+          notifications: true,
+          sound: true,
+          theme: 'system',
+          font_size: 'medium',
+          compact_mode: false
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating initial app settings:', error);
+        // Return default settings if creation fails
+        return {
+          id: 'temp',
+          default_focus_time: 25,
+          break_time: 5,
+          notifications: true,
+          sound: true,
+          theme: 'system',
+          font_size: 'medium',
+          compact_mode: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+      }
+      console.log('Initial app settings created successfully:', data);
+      return data;
+    } catch (err) {
+      console.error('Exception creating initial app settings:', err);
+      // Return default settings if creation fails
+      return {
+        id: 'temp',
         default_focus_time: 25,
         break_time: 5,
         notifications: true,
         sound: true,
         theme: 'system',
         font_size: 'medium',
-        compact_mode: false
-      }])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+        compact_mode: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
   };
 
   // Daily Tasks
@@ -210,7 +276,7 @@ export const useDatabase = () => {
     refetchOnWindowFocus: false
   });
 
-  // User Stats with auto-creation
+  // User Stats with better error handling
   const {
     data: userStats,
     isLoading: loadingUserStats,
@@ -219,31 +285,37 @@ export const useDatabase = () => {
     queryKey: ['userStats'],
     queryFn: async () => {
       console.log('Fetching user stats...');
-      const { data, error } = await supabase
-        .from('user_stats')
-        .select('*')
-        .limit(1)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error fetching user stats:', error);
-        throw error;
-      }
+      try {
+        const { data, error } = await supabase
+          .from('user_stats')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching user stats:', error);
+          // Try to create initial stats
+          return await createInitialUserStats();
+        }
 
-      // If no stats exist, create initial ones
-      if (!data) {
-        console.log('No user stats found, creating initial stats...');
+        // If no stats exist, create initial ones
+        if (!data) {
+          console.log('No user stats found, creating initial stats...');
+          return await createInitialUserStats();
+        }
+
+        console.log('User stats fetched:', data);
+        return data as UserStats;
+      } catch (err) {
+        console.error('Exception in user stats query:', err);
         return await createInitialUserStats();
       }
-
-      console.log('User stats fetched:', data);
-      return data as UserStats;
     },
-    retry: 1,
+    retry: false, // Don't retry on failure
     refetchOnWindowFocus: false
   });
 
-  // App Settings with auto-creation
+  // App Settings with better error handling
   const {
     data: appSettings,
     isLoading: loadingAppSettings,
@@ -252,27 +324,33 @@ export const useDatabase = () => {
     queryKey: ['appSettings'],
     queryFn: async () => {
       console.log('Fetching app settings...');
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('*')
-        .limit(1)
-        .maybeSingle();
-      
-      if (error) {
-        console.error('Error fetching app settings:', error);
-        throw error;
-      }
+      try {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching app settings:', error);
+          // Try to create initial settings
+          return await createInitialAppSettings();
+        }
 
-      // If no settings exist, create initial ones
-      if (!data) {
-        console.log('No app settings found, creating initial settings...');
+        // If no settings exist, create initial ones
+        if (!data) {
+          console.log('No app settings found, creating initial settings...');
+          return await createInitialAppSettings();
+        }
+
+        console.log('App settings fetched:', data);
+        return data as AppSettings;
+      } catch (err) {
+        console.error('Exception in app settings query:', err);
         return await createInitialAppSettings();
       }
-
-      console.log('App settings fetched:', data);
-      return data as AppSettings;
     },
-    retry: 1,
+    retry: false, // Don't retry on failure
     refetchOnWindowFocus: false
   });
 
@@ -450,6 +528,12 @@ export const useDatabase = () => {
 
   const updateUserStatsMutation = useMutation({
     mutationFn: async (stats: Partial<UserStats>) => {
+      // Skip update if we have temp data
+      if (userStats?.id === 'temp') {
+        console.log('Skipping user stats update for temp data');
+        return userStats;
+      }
+
       const { data, error } = await supabase
         .from('user_stats')
         .update({
@@ -470,6 +554,12 @@ export const useDatabase = () => {
 
   const updateAppSettingsMutation = useMutation({
     mutationFn: async (settings: Partial<AppSettings>) => {
+      // Skip update if we have temp data
+      if (appSettings?.id === 'temp') {
+        console.log('Skipping app settings update for temp data');
+        return appSettings;
+      }
+
       const { data, error } = await supabase
         .from('app_settings')
         .update({
