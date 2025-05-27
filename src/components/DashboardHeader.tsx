@@ -48,27 +48,27 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, date }) => 
 
   return (
     <Card className="card-interactive relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20 animate-gradient-shift"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10"></div>
       <CardContent className="p-6 relative z-10">
         <div className="flex justify-between items-start">
           <div className="stagger-fade-in">
-            <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-1 text-gradient-primary">
               {greeting()}, {userName}
             </h1>
             <p className="text-muted-foreground flex items-center hover:text-foreground transition-colors duration-300">
-              <Calendar size={14} className="mr-1 animate-pulse" /> 
+              <Calendar size={14} className="mr-1 text-primary" /> 
               {formatDate(date)}
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center bg-secondary/20 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/30 hover:bg-secondary/30 transition-all duration-300">
-              <Clock size={16} className="mr-2 text-primary animate-spin" style={{ animationDuration: '2s' }} />
-              <span className="font-mono text-lg font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="flex items-center bg-secondary/30 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/50 hover:bg-secondary/40 transition-all duration-300">
+              <Clock size={16} className="mr-2 text-primary" />
+              <span className="font-mono text-lg font-semibold text-primary-readable">
                 {formatTime(currentTime)}
               </span>
             </div>
-            <Button className="btn-enhanced bg-gradient-to-r from-primary to-accent hover:from-accent hover:to-primary text-primary-foreground shadow-lg">
-              <Check size={16} className="mr-2 animate-bounce" /> 
+            <Button className="btn-enhanced bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+              <Check size={16} className="mr-2" /> 
               Check In
             </Button>
           </div>

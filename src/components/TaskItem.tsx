@@ -24,19 +24,19 @@ const TaskItem: React.FC<TaskItemProps> = ({
       bg: 'from-destructive/20 to-destructive/10', 
       border: 'border-destructive/30', 
       text: 'text-destructive',
-      indicator: 'bg-gradient-to-b from-destructive to-destructive/70'
+      indicator: 'bg-destructive'
     },
     2: { 
       bg: 'from-primary/20 to-accent/10', 
       border: 'border-primary/30', 
       text: 'text-primary',
-      indicator: 'bg-gradient-to-b from-primary to-accent'
+      indicator: 'bg-primary'
     },
     3: { 
-      bg: 'from-secondary/20 to-muted/10', 
+      bg: 'from-secondary/30 to-muted/20', 
       border: 'border-muted/30', 
       text: 'text-muted-foreground',
-      indicator: 'bg-gradient-to-b from-secondary to-muted'
+      indicator: 'bg-muted-foreground'
     },
   };
 
@@ -62,8 +62,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         checked={completed}
         onCheckedChange={(checked) => onToggle(id, checked as boolean)}
         className={cn(
-          "data-[state=checked]:bg-primary transition-all duration-300 hover:scale-110",
-          completed && "animate-bounce"
+          "data-[state=checked]:bg-primary transition-all duration-300 hover:scale-110"
         )}
       />
       
@@ -71,7 +70,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       <label
         htmlFor={`task-${id}`}
         className={cn(
-          "flex-1 text-sm font-medium cursor-pointer transition-all duration-300 hover:text-primary",
+          "flex-1 text-sm font-medium cursor-pointer transition-all duration-300 hover:text-primary text-readable",
           completed && "line-through opacity-70"
         )}
       >
@@ -83,7 +82,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         {completed ? (
           <Check 
             size={16} 
-            className="text-primary animate-bounce transition-all duration-300" 
+            className="text-primary transition-all duration-300" 
           />
         ) : (
           <Clock 

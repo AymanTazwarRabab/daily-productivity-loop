@@ -12,29 +12,23 @@
   --reseda-green: #7f9172;
   --hookers-green: #567568;
   
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #d5dfe5, #c9b1bd, #b49594);
-  --gradient-secondary: linear-gradient(45deg, #7f9172, #567568);
-  --gradient-accent: linear-gradient(90deg, #c9b1bd, #b49594, #7f9172);
-  --gradient-radial: radial-gradient(circle, #d5dfe5, #c9b1bd, #567568);
-  
-  /* Enhanced Theme Colors */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Enhanced Theme Colors with proper contrast */
+  --background: 0 0% 98%;
+  --foreground: 155 15% 25%; /* darker hookers-green for better readability */
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 155 15% 25%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover-foreground: 155 15% 25%;
   --primary: 155 15% 40%; /* hookers-green */
-  --primary-foreground: 210 40% 98%;
+  --primary-foreground: 0 0% 98%;
   --secondary: 203 24% 87%; /* alice-blue */
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  --secondary-foreground: 155 15% 25%;
   --muted: 330 18% 74%; /* thistle */
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted-foreground: 155 15% 35%;
   --accent: 2 18% 64%; /* rosy-brown */
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --accent-foreground: 155 15% 25%;
   --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 98%;
   --border: 214.3 31.8% 82%;
   --input: 214.3 31.8% 82%;
   --ring: 95 12% 51%; /* reseda-green */
@@ -42,24 +36,24 @@
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
+  --background: 155 15% 8%;
+  --foreground: 203 24% 87%;
+  --card: 155 15% 10%;
+  --card-foreground: 203 24% 87%;
+  --popover: 155 15% 10%;
+  --popover-foreground: 203 24% 87%;
   --primary: 203 24% 87%; /* alice-blue in dark mode */
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 155 15% 40%; /* hookers-green in dark mode */
-  --secondary-foreground: 210 40% 98%;
-  --muted: 95 12% 51%; /* reseda-green in dark mode */
-  --muted-foreground: 215 20.2% 65.1%;
+  --primary-foreground: 155 15% 10%;
+  --secondary: 155 15% 20%; /* darker hookers-green in dark mode */
+  --secondary-foreground: 203 24% 87%;
+  --muted: 95 12% 35%; /* darker reseda-green in dark mode */
+  --muted-foreground: 203 24% 70%;
   --accent: 330 18% 74%; /* thistle in dark mode */
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
+  --accent-foreground: 155 15% 10%;
+  --destructive: 0 62.8% 50%;
+  --destructive-foreground: 203 24% 87%;
+  --border: 155 15% 20%;
+  --input: 155 15% 20%;
   --ring: 2 18% 64%; /* rosy-brown in dark mode */
 }
 
@@ -74,7 +68,6 @@
     background-attachment: fixed;
   }
   
-  /* Enhanced visibility for borders and separators */
   .border {
     @apply border-border/60 transition-colors duration-200;
   }
@@ -83,9 +76,8 @@
     @apply bg-border/40;
   }
   
-  /* Improve contrast for cards */
   .card {
-    @apply shadow-lg backdrop-blur-sm bg-card/80 border-border/20;
+    @apply shadow-lg backdrop-blur-sm bg-card/90 border-border/20;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
@@ -121,11 +113,6 @@
   100% { transform: translateX(100%); }
 }
 
-@keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -159,35 +146,39 @@
   }
 }
 
-/* Font size settings with smooth transitions */
-html.text-size-small {
-  font-size: 14px;
-  transition: font-size 0.3s ease;
-}
-
-html.text-size-medium {
-  font-size: 16px;
-  transition: font-size 0.3s ease;
-}
-
-html.text-size-large {
-  font-size: 18px;
-  transition: font-size 0.3s ease;
-}
-
 /* Enhanced Animations and Interactive Elements */
 @layer components {
-  /* Gradient Button Styles */
-  .btn-gradient {
-    background: var(--gradient-primary);
-    background-size: 200% 200%;
-    animation: gradient-shift 3s ease infinite;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Text utilities for better readability */
+  .text-readable {
+    @apply text-foreground;
   }
   
-  .btn-gradient:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  .text-readable-muted {
+    @apply text-muted-foreground;
+  }
+  
+  .text-primary-readable {
+    @apply text-primary font-medium;
+  }
+  
+  .text-accent-readable {
+    @apply text-accent-foreground;
+    color: hsl(var(--accent));
+  }
+  
+  /* Gradient text with fallback */
+  .text-gradient-primary {
+    @apply text-primary;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    background-clip: text;
+    -webkit-background-clip: text;
+  }
+  
+  .text-gradient-accent {
+    @apply text-accent;
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+    background-clip: text;
+    -webkit-background-clip: text;
   }
   
   /* Card Hover Effects */
@@ -215,34 +206,6 @@ html.text-size-large {
   .card-interactive:hover {
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* Floating Animation */
-  .float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  /* Pulse Glow Effect */
-  .pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-  }
-  
-  /* Shimmer Effect */
-  .shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .shimmer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transform: translateX(-100%);
-    animation: shimmer 2s infinite;
   }
   
   /* Enhanced Button Styles */
@@ -285,7 +248,7 @@ html.text-size-large {
   
   /* Progress Bar Enhancements */
   .progress-enhanced {
-    background: var(--gradient-accent);
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
     background-size: 200% 100%;
     animation: gradient-shift 2s linear infinite;
   }
@@ -303,7 +266,7 @@ html.text-size-large {
     left: 50%;
     width: 0;
     height: 2px;
-    background: var(--gradient-primary);
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateX(-50%);
   }
@@ -337,10 +300,10 @@ html.text-size-large {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gradient-secondary);
+  background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
 }
