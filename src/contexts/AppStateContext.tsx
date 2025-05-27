@@ -20,22 +20,12 @@ type AppStateContextType = {
     xpForNextLevel?: number;
   }) => void;
   settings: {
-    defaultFocusTime: number;
-    breakTime: number;
-    notifications: boolean;
-    sound: boolean;
     theme: string;
     fontSize: string;
-    compactMode: boolean;
   };
   updateSettings: (newSettings: {
-    defaultFocusTime?: number;
-    breakTime?: number;
-    notifications?: boolean;
-    sound?: boolean;
     theme?: string;
     fontSize?: string;
-    compactMode?: boolean;
   }) => void;
   refreshStats: () => void;
   isLoading: boolean;
@@ -53,13 +43,8 @@ const defaultContext: AppStateContextType = {
   },
   updateStats: () => {},
   settings: {
-    defaultFocusTime: 25,
-    breakTime: 5,
-    notifications: true,
-    sound: true,
     theme: 'system',
-    fontSize: 'medium',
-    compactMode: false
+    fontSize: 'medium'
   },
   updateSettings: () => {},
   refreshStats: () => {},
@@ -95,13 +80,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   } : defaultContext.stats;
 
   const settings = appSettings ? {
-    defaultFocusTime: appSettings.default_focus_time ?? 25,
-    breakTime: appSettings.break_time ?? 5,
-    notifications: appSettings.notifications ?? true,
-    sound: appSettings.sound ?? true,
     theme: appSettings.theme ?? 'system',
-    fontSize: appSettings.font_size ?? 'medium',
-    compactMode: appSettings.compact_mode ?? false
+    fontSize: appSettings.font_size ?? 'medium'
   } : defaultContext.settings;
 
   const handleUpdateStats = (newStats: {
@@ -132,13 +112,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const handleUpdateSettings = (newSettings: {
-    defaultFocusTime?: number;
-    breakTime?: number;
-    notifications?: boolean;
-    sound?: boolean;
     theme?: string;
     fontSize?: string;
-    compactMode?: boolean;
   }) => {
     console.log('AppStateContext - Updating settings:', newSettings);
     
@@ -149,13 +124,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // Convert to database format
     const dbSettings: any = {};
-    if (newSettings.defaultFocusTime !== undefined) dbSettings.default_focus_time = newSettings.defaultFocusTime;
-    if (newSettings.breakTime !== undefined) dbSettings.break_time = newSettings.breakTime;
-    if (newSettings.notifications !== undefined) dbSettings.notifications = newSettings.notifications;
-    if (newSettings.sound !== undefined) dbSettings.sound = newSettings.sound;
     if (newSettings.theme !== undefined) dbSettings.theme = newSettings.theme;
     if (newSettings.fontSize !== undefined) dbSettings.font_size = newSettings.fontSize;
-    if (newSettings.compactMode !== undefined) dbSettings.compact_mode = newSettings.compactMode;
     
     updateAppSettings(dbSettings);
   };

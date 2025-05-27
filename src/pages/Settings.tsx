@@ -1,16 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { saveSettings, applySettings } from '@/utils/localStorage';
-import { Settings as SettingsIcon, RefreshCcw, Save } from 'lucide-react';
+import { RefreshCcw, Save } from 'lucide-react';
 import { useAppState } from '@/contexts/AppStateContext';
 
 const Settings = () => {
@@ -20,44 +18,49 @@ const Settings = () => {
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
+    // Update pending settings when settings change
+    setPendingSettings(settings);
+  }, [settings]);
+
+  useEffect(() => {
     // Check if there are pending changes that differ from saved settings
     setHasChanges(
-      pendingSettings.defaultFocusTime !== settings.defaultFocusTime ||
-      pendingSettings.breakTime !== settings.breakTime ||
-      pendingSettings.notifications !== settings.notifications ||
-      pendingSettings.sound !== settings.sound ||
       pendingSettings.theme !== settings.theme ||
-      pendingSettings.fontSize !== settings.fontSize ||
-      pendingSettings.compactMode !== settings.compactMode
+      pendingSettings.fontSize !== settings.fontSize
     );
   }, [pendingSettings, settings]);
-
-  const handleFocusTimeChange = (value: number[]) => {
-    setPendingSettings({ ...pendingSettings, defaultFocusTime: value[0] });
-  };
-
-  const handleBreakTimeChange = (value: number[]) => {
-    setPendingSettings({ ...pendingSettings, breakTime: value[0] });
-  };
-  
-  const handleNotificationsChange = (checked: boolean) => {
-    setPendingSettings({ ...pendingSettings, notifications: checked });
-  };
-  
-  const handleSoundChange = (checked: boolean) => {
-    setPendingSettings({ ...pendingSettings, sound: checked });
-  };
   
   const handleThemeChange = (value: string) => {
-    setPendingSettings({ ...pendingSettings, theme: value });
+    const newSettings = { ...pendingSettings, theme: value };
+    setPendingSettings(newSettings);
+    // Apply theme immediately
+    applyThemeSettings(newSettings);
   };
   
   const handleFontSizeChange = (value: string) => {
-    setPendingSettings({ ...pendingSettings, fontSize: value });
+    const newSettings = { ...pendingSettings, fontSize: value };
+    setPendingSettings(newSettings);
+    // Apply font size immediately
+    applyFontSizeSettings(newSettings);
   };
-  
-  const handleCompactModeChange = (checked: boolean) => {
-    setPendingSettings({ ...pendingSettings, compactMode: checked });
+
+  const applyThemeSettings = (newSettings: typeof settings) => {
+    if (newSettings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (newSettings.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else if (newSettings.theme === 'system') {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  };
+
+  const applyFontSizeSettings = (newSettings: typeof settings) => {
+    document.documentElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+    document.documentElement.classList.add(`text-size-${newSettings.fontSize}`);
   };
 
   const handleSaveChanges = () => {
@@ -104,75 +107,11 @@ const Settings = () => {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
         
-        <Tabs defaultValue="general">
+        <Tabs defaultValue="appearance">
           <TabsList className="mb-4">
-            <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="progress">Progress</TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="general">
-            <Card>
-              <CardHeader>
-                <CardTitle>General Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="focus-time">Focus Session Duration (minutes)</Label>
-                    <span className="text-sm">{pendingSettings.defaultFocusTime} min</span>
-                  </div>
-                  <Slider
-                    id="focus-time"
-                    value={[pendingSettings.defaultFocusTime]}
-                    max={60}
-                    min={5}
-                    step={5}
-                    onValueChange={handleFocusTimeChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="break-time">Break Duration (minutes)</Label>
-                    <span className="text-sm">{pendingSettings.breakTime} min</span>
-                  </div>
-                  <Slider
-                    id="break-time"
-                    value={[pendingSettings.breakTime]}
-                    max={30}
-                    min={1}
-                    step={1}
-                    onValueChange={handleBreakTimeChange}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="notifications">Enable Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Receive notifications when tasks are due</p>
-                  </div>
-                  <Switch 
-                    id="notifications" 
-                    checked={pendingSettings.notifications}
-                    onCheckedChange={handleNotificationsChange}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="sound">Sound Effects</Label>
-                    <p className="text-sm text-muted-foreground">Play sounds for timer and task completion</p>
-                  </div>
-                  <Switch 
-                    id="sound" 
-                    checked={pendingSettings.sound !== undefined ? pendingSettings.sound : true}
-                    onCheckedChange={handleSoundChange}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
           
           <TabsContent value="appearance">
             <Card>
@@ -212,18 +151,6 @@ const Settings = () => {
                       <SelectItem value="large">Large</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label htmlFor="compact">Compact Mode</Label>
-                    <p className="text-sm text-muted-foreground">Use compact layout for more content on screen</p>
-                  </div>
-                  <Switch 
-                    id="compact" 
-                    checked={pendingSettings.compactMode || false}
-                    onCheckedChange={handleCompactModeChange}
-                  />
                 </div>
               </CardContent>
             </Card>

@@ -1,4 +1,3 @@
-
 // Type definitions for our stored data
 export interface StoredTask {
   id: string;
@@ -31,13 +30,8 @@ export interface StoredStats {
 }
 
 export interface StoredSettings {
-  defaultFocusTime: number;
-  breakTime: number;
-  notifications: boolean;
-  sound: boolean;
   theme: string;
   fontSize: string;
-  compactMode: boolean;
 }
 
 // Storage keys
@@ -127,13 +121,8 @@ export const getStats = (): StoredStats => {
 export const getSettings = (): StoredSettings => {
   const settingsJson = localStorage.getItem(SETTINGS_KEY);
   const defaultSettings = {
-    defaultFocusTime: 25,
-    breakTime: 5,
-    notifications: true,
-    sound: true,
     theme: 'system',
-    fontSize: 'medium',
-    compactMode: false
+    fontSize: 'medium'
   };
   return settingsJson ? JSON.parse(settingsJson) : defaultSettings;
 };
@@ -162,11 +151,4 @@ export const applySettings = (settings: StoredSettings) => {
   // Apply font size
   document.documentElement.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
   document.documentElement.classList.add(`text-size-${settings.fontSize}`);
-  
-  // Apply compact mode if needed
-  if (settings.compactMode) {
-    document.documentElement.classList.add('compact-mode');
-  } else {
-    document.documentElement.classList.remove('compact-mode');
-  }
 };
