@@ -14,7 +14,7 @@ import { useDatabase } from '@/hooks/useDatabase';
 
 const Index = () => {
   const [date] = useState(new Date());
-  const { stats, updateStats, isLoading } = useAppState();
+  const { stats, updateStats, isLoading, hasError } = useAppState();
   const { 
     updateDailyTask, 
     addDailyTask, 
@@ -199,6 +199,28 @@ const Index = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-lg">Loading your productivity dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">There was an error loading your dashboard data.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+          >
+            Reload Page
+          </button>
         </div>
       </div>
     );

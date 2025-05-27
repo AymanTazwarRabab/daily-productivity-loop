@@ -39,6 +39,7 @@ type AppStateContextType = {
   }) => void;
   refreshStats: () => void;
   isLoading: boolean;
+  hasError: boolean;
 };
 
 const defaultContext: AppStateContextType = {
@@ -62,7 +63,8 @@ const defaultContext: AppStateContextType = {
   },
   updateSettings: () => {},
   refreshStats: () => {},
-  isLoading: false
+  isLoading: false,
+  hasError: false
 };
 
 export const AppStateContext = createContext<AppStateContextType>(defaultContext);
@@ -74,10 +76,13 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     updateUserStats, 
     updateAppSettings,
     loadingUserStats,
-    loadingAppSettings 
+    loadingAppSettings,
+    userStatsError,
+    appSettingsError
   } = useDatabase();
 
   const isLoading = loadingUserStats || loadingAppSettings;
+  const hasError = !!(userStatsError || appSettingsError);
 
   // Convert database format to component format with fallbacks
   const stats = userStats ? {
@@ -109,8 +114,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }) => {
     console.log('AppStateContext - Updating stats:', newStats);
     
-    if (!updateUserStats) {
-      console.warn('updateUserStats not available yet');
+    if (!updateUserStats || !userStats) {
+      console.warn('updateUserStats not available yet or no userStats');
       return;
     }
     
@@ -137,8 +142,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }) => {
     console.log('AppStateContext - Updating settings:', newSettings);
     
-    if (!updateAppSettings) {
-      console.warn('updateAppSettings not available yet');
+    if (!updateAppSettings || !appSettings) {
+      console.warn('updateAppSettings not available yet or no appSettings');
       return;
     }
     
@@ -167,7 +172,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       settings, 
       updateSettings: handleUpdateSettings, 
       refreshStats,
-      isLoading
+      isLoading,
+      hasError
     }}>
       {children}
     </AppStateContext.Provider>

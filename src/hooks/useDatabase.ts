@@ -69,6 +69,45 @@ export interface AppSettings {
 export const useDatabase = () => {
   const queryClient = useQueryClient();
 
+  // Helper function to create initial user stats
+  const createInitialUserStats = async () => {
+    const { data, error } = await supabase
+      .from('user_stats')
+      .insert([{
+        focus_sessions: 0,
+        tasks_completed: 0,
+        streak: 0,
+        level: 1,
+        xp: 0,
+        xp_for_next_level: 100
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  };
+
+  // Helper function to create initial app settings
+  const createInitialAppSettings = async () => {
+    const { data, error } = await supabase
+      .from('app_settings')
+      .insert([{
+        default_focus_time: 25,
+        break_time: 5,
+        notifications: true,
+        sound: true,
+        theme: 'system',
+        font_size: 'medium',
+        compact_mode: false
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  };
+
   // Daily Tasks
   const {
     data: dailyTasks = [],
@@ -171,7 +210,7 @@ export const useDatabase = () => {
     refetchOnWindowFocus: false
   });
 
-  // User Stats
+  // User Stats with auto-creation
   const {
     data: userStats,
     isLoading: loadingUserStats,
@@ -184,12 +223,19 @@ export const useDatabase = () => {
         .from('user_stats')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching user stats:', error);
         throw error;
       }
+
+      // If no stats exist, create initial ones
+      if (!data) {
+        console.log('No user stats found, creating initial stats...');
+        return await createInitialUserStats();
+      }
+
       console.log('User stats fetched:', data);
       return data as UserStats;
     },
@@ -197,7 +243,7 @@ export const useDatabase = () => {
     refetchOnWindowFocus: false
   });
 
-  // App Settings
+  // App Settings with auto-creation
   const {
     data: appSettings,
     isLoading: loadingAppSettings,
@@ -210,12 +256,19 @@ export const useDatabase = () => {
         .from('app_settings')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching app settings:', error);
         throw error;
       }
+
+      // If no settings exist, create initial ones
+      if (!data) {
+        console.log('No app settings found, creating initial settings...');
+        return await createInitialAppSettings();
+      }
+
       console.log('App settings fetched:', data);
       return data as AppSettings;
     },

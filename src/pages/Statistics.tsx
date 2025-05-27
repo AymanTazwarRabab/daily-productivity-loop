@@ -3,43 +3,41 @@ import React, { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { getReflections, getTasks, getCalendarTasks } from '@/utils/localStorage';
 import { BarChart, PieChart, LineChart, Bar, Pie, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, Award, Star } from 'lucide-react';
 import { useAppState } from '@/contexts/AppStateContext';
+import { useDatabase } from '@/hooks/useDatabase';
 
 const Statistics = () => {
   const { stats, refreshStats } = useAppState();
-  const reflections = getReflections();
-  const tasks = getTasks();
-  const calendarTasks = getCalendarTasks();
+  const { dailyTasks, calendarTasks, reflections } = useDatabase();
   
   // Refresh stats when component mounts to ensure latest data
   useEffect(() => {
     refreshStats();
   }, [refreshStats]);
   
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const totalTasks = tasks.length;
+  const completedTasks = dailyTasks.filter(task => task.completed).length;
+  const totalTasks = dailyTasks.length;
   
   const completedCalendarTasks = calendarTasks.filter(task => task.completed).length;
   const totalCalendarTasks = calendarTasks.length;
   
-  const progressPercent = (stats.xp / stats.xpForNextLevel) * 100;
+  const progressPercent = stats.xpForNextLevel > 0 ? (stats.xp / stats.xpForNextLevel) * 100 : 0;
   
   // Data for task completion pie chart
   const taskCompletionData = [
     { name: 'Completed', value: completedTasks, fill: '#4ade80' },
-    { name: 'Remaining', value: totalTasks - completedTasks, fill: '#f87171' },
+    { name: 'Remaining', value: Math.max(0, totalTasks - completedTasks), fill: '#f87171' },
   ];
   
   // Data for calendar task completion pie chart
   const calendarTaskCompletionData = [
     { name: 'Completed', value: completedCalendarTasks, fill: '#60a5fa' },
-    { name: 'Remaining', value: totalCalendarTasks - completedCalendarTasks, fill: '#f87171' },
+    { name: 'Remaining', value: Math.max(0, totalCalendarTasks - completedCalendarTasks), fill: '#f87171' },
   ];
   
-  // Data for focus sessions bar chart (mock data, would ideally come from historical records)
+  // Data for focus sessions bar chart (mock data based on total sessions)
   const focusSessionData = [
     { day: 'Mon', sessions: Math.floor(stats.focusSessions * 0.2) },
     { day: 'Tue', sessions: Math.floor(stats.focusSessions * 0.15) },
@@ -102,29 +100,41 @@ const Statistics = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex items-center p-2 rounded-md border">
-                  <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                  <div>
-                    <div className="font-medium">Productivity Warrior</div>
-                    <div className="text-sm text-muted-foreground">Completed {stats.tasksCompleted} tasks</div>
+                {stats.tasksCompleted > 0 && (
+                  <div className="flex items-center p-2 rounded-md border">
+                    <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                    <div>
+                      <div className="font-medium">Productivity Warrior</div>
+                      <div className="text-sm text-muted-foreground">Completed {stats.tasksCompleted} tasks</div>
+                    </div>
                   </div>
-                </div>
+                )}
                 
-                <div className="flex items-center p-2 rounded-md border">
-                  <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                  <div>
-                    <div className="font-medium">Focus Master</div>
-                    <div className="text-sm text-muted-foreground">Completed {stats.focusSessions} focus sessions</div>
+                {stats.focusSessions > 0 && (
+                  <div className="flex items-center p-2 rounded-md border">
+                    <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                    <div>
+                      <div className="font-medium">Focus Master</div>
+                      <div className="text-sm text-muted-foreground">Completed {stats.focusSessions} focus sessions</div>
+                    </div>
                   </div>
-                </div>
+                )}
                 
-                <div className="flex items-center p-2 rounded-md border">
-                  <Star className="h-5 w-5 text-yellow-500 mr-2" />
-                  <div>
-                    <div className="font-medium">Consistency Champion</div>
-                    <div className="text-sm text-muted-foreground">{stats.streak} day streak</div>
+                {stats.streak > 0 && (
+                  <div className="flex items-center p-2 rounded-md border">
+                    <Star className="h-5 w-5 text-yellow-500 mr-2" />
+                    <div>
+                      <div className="font-medium">Consistency Champion</div>
+                      <div className="text-sm text-muted-foreground">{stats.streak} day streak</div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {stats.tasksCompleted === 0 && stats.focusSessions === 0 && stats.streak === 0 && (
+                  <div className="text-center text-muted-foreground">
+                    Start completing tasks to unlock achievements!
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -134,24 +144,32 @@ const Statistics = () => {
               <CardTitle className="text-lg">Task Completion</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[150px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={taskCompletionData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={60}
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    />
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="text-center text-sm mt-2">
-                {completedTasks} of {totalTasks} daily tasks completed
-              </div>
+              {totalTasks > 0 ? (
+                <>
+                  <div className="h-[150px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={taskCompletionData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={60}
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        />
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="text-center text-sm mt-2">
+                    {completedTasks} of {totalTasks} daily tasks completed
+                  </div>
+                </>
+              ) : (
+                <div className="h-[150px] flex items-center justify-center text-muted-foreground">
+                  No daily tasks yet. Add some tasks to see statistics!
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -162,17 +180,23 @@ const Statistics = () => {
               <CardTitle>Focus Sessions</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={focusSessionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="sessions" fill="#3b82f6" name="Sessions" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              {stats.focusSessions > 0 ? (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={focusSessionData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="sessions" fill="#3b82f6" name="Sessions" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Complete your first focus session to see statistics!
+                </div>
+              )}
             </CardContent>
           </Card>
           
@@ -181,22 +205,28 @@ const Statistics = () => {
               <CardTitle>Calendar Tasks</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={calendarTaskCompletionData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    />
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              {totalCalendarTasks > 0 ? (
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={calendarTaskCompletionData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      />
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                  Schedule some calendar tasks to see completion statistics!
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
