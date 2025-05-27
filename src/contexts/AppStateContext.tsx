@@ -22,10 +22,14 @@ type AppStateContextType = {
   settings: {
     theme: string;
     fontSize: string;
+    defaultFocusTime: number;
+    breakTime: number;
   };
   updateSettings: (newSettings: {
     theme?: string;
     fontSize?: string;
+    defaultFocusTime?: number;
+    breakTime?: number;
   }) => void;
   refreshStats: () => void;
   isLoading: boolean;
@@ -44,7 +48,9 @@ const defaultContext: AppStateContextType = {
   updateStats: () => {},
   settings: {
     theme: 'system',
-    fontSize: 'medium'
+    fontSize: 'medium',
+    defaultFocusTime: 25,
+    breakTime: 5
   },
   updateSettings: () => {},
   refreshStats: () => {},
@@ -81,7 +87,9 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const settings = appSettings ? {
     theme: appSettings.theme ?? 'system',
-    fontSize: appSettings.font_size ?? 'medium'
+    fontSize: appSettings.font_size ?? 'medium',
+    defaultFocusTime: appSettings.default_focus_time ?? 25,
+    breakTime: appSettings.break_time ?? 5
   } : defaultContext.settings;
 
   const handleUpdateStats = (newStats: {
@@ -114,6 +122,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const handleUpdateSettings = (newSettings: {
     theme?: string;
     fontSize?: string;
+    defaultFocusTime?: number;
+    breakTime?: number;
   }) => {
     console.log('AppStateContext - Updating settings:', newSettings);
     
@@ -126,6 +136,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const dbSettings: any = {};
     if (newSettings.theme !== undefined) dbSettings.theme = newSettings.theme;
     if (newSettings.fontSize !== undefined) dbSettings.font_size = newSettings.fontSize;
+    if (newSettings.defaultFocusTime !== undefined) dbSettings.default_focus_time = newSettings.defaultFocusTime;
+    if (newSettings.breakTime !== undefined) dbSettings.break_time = newSettings.breakTime;
     
     updateAppSettings(dbSettings);
   };
