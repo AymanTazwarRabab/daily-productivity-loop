@@ -105,50 +105,50 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8 pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gradient-primary">Settings</h1>
         
-        <Tabs defaultValue="appearance">
+        <Tabs defaultValue="appearance" className="stagger-fade-in">
           <TabsList className="mb-4">
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger value="progress">Progress</TabsTrigger>
+            <TabsTrigger value="appearance" className="nav-item">Appearance</TabsTrigger>
+            <TabsTrigger value="progress" className="nav-item">Progress</TabsTrigger>
           </TabsList>
           
           <TabsContent value="appearance">
-            <Card>
+            <Card className="card-interactive">
               <CardHeader>
-                <CardTitle>Appearance Settings</CardTitle>
+                <CardTitle className="text-gradient-primary">Appearance Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="theme">Theme</Label>
+                  <Label htmlFor="theme" className="text-readable">Theme</Label>
                   <Select 
                     value={pendingSettings.theme || "system"} 
                     onValueChange={handleThemeChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="btn-enhanced">
                       <SelectValue placeholder="Select theme" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
+                      <SelectItem value="light" className="transition-all duration-300 hover:scale-[1.02]">Light</SelectItem>
+                      <SelectItem value="dark" className="transition-all duration-300 hover:scale-[1.02]">Dark</SelectItem>
+                      <SelectItem value="system" className="transition-all duration-300 hover:scale-[1.02]">System</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="font-size">Font Size</Label>
+                  <Label htmlFor="font-size" className="text-readable">Font Size</Label>
                   <Select 
                     value={pendingSettings.fontSize || "medium"}
                     onValueChange={handleFontSizeChange}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="btn-enhanced">
                       <SelectValue placeholder="Select font size" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="small">Small</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="large">Large</SelectItem>
+                      <SelectItem value="small" className="transition-all duration-300 hover:scale-[1.02]">Small</SelectItem>
+                      <SelectItem value="medium" className="transition-all duration-300 hover:scale-[1.02]">Medium</SelectItem>
+                      <SelectItem value="large" className="transition-all duration-300 hover:scale-[1.02]">Large</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -157,76 +157,86 @@ const Settings = () => {
           </TabsContent>
           
           <TabsContent value="progress">
-            <Card>
+            <Card className="card-interactive">
               <CardHeader>
-                <CardTitle>Progress & Level Settings</CardTitle>
+                <CardTitle className="text-gradient-primary">Progress & Level Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
-                  <div>
-                    <div className="mb-2 flex justify-between">
-                      <Label>Current Level</Label>
-                      <span className="font-medium">{stats.level}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-3 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
+                      <div className="mb-2 flex justify-between">
+                        <Label className="text-readable">Current Level</Label>
+                        <span className="font-medium text-gradient-accent">{stats.level}</span>
+                      </div>
                     </div>
-                    <div className="mb-2 flex justify-between">
-                      <Label>Current XP</Label>
-                      <span>{stats.xp} / {stats.xpForNextLevel}</span>
+                    <div className="p-3 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
+                      <div className="mb-2 flex justify-between">
+                        <Label className="text-readable">Current XP</Label>
+                        <span className="text-gradient-accent">{stats.xp} / {stats.xpForNextLevel}</span>
+                      </div>
                     </div>
-                    <div className="mb-2 flex justify-between">
-                      <Label>Tasks Completed</Label>
-                      <span>{stats.tasksCompleted}</span>
+                    <div className="p-3 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
+                      <div className="mb-2 flex justify-between">
+                        <Label className="text-readable">Tasks Completed</Label>
+                        <span className="text-gradient-accent">{stats.tasksCompleted}</span>
+                      </div>
                     </div>
-                    <div className="mb-2 flex justify-between">
-                      <Label>Focus Sessions</Label>
-                      <span>{stats.focusSessions}</span>
+                    <div className="p-3 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
+                      <div className="mb-2 flex justify-between">
+                        <Label className="text-readable">Focus Sessions</Label>
+                        <span className="text-gradient-accent">{stats.focusSessions}</span>
+                      </div>
                     </div>
-                    <div className="mb-2 flex justify-between">
-                      <Label>Current Streak</Label>
-                      <span>{stats.streak} days</span>
+                    <div className="p-3 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md md:col-span-2">
+                      <div className="mb-2 flex justify-between">
+                        <Label className="text-readable">Current Streak</Label>
+                        <span className="text-gradient-accent">{stats.streak} days</span>
+                      </div>
                     </div>
                   </div>
                   
                   <div className="pt-4 border-t">
-                    <h3 className="text-lg font-medium mb-4">Reset Options</h3>
+                    <h3 className="text-lg font-medium mb-4 text-gradient-primary">Reset Options</h3>
                     
                     <div className="space-y-4">
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" className="w-full flex items-center justify-center">
-                            <RefreshCcw className="mr-2 h-4 w-4" />
+                          <Button variant="outline" className="w-full flex items-center justify-center btn-enhanced">
+                            <RefreshCcw className="mr-2 h-4 w-4 transition-all duration-300 hover:scale-110" />
                             Reset Level and XP
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="card-interactive">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Reset Level Progress</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className="text-gradient-primary">Reset Level Progress</AlertDialogTitle>
+                            <AlertDialogDescription className="text-readable-muted">
                               This will reset your level to 1 and your XP to 0. This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleResetLevel}>Reset</AlertDialogAction>
+                            <AlertDialogCancel className="btn-enhanced">Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleResetLevel} className="btn-enhanced">Reset</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
                       
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="destructive" className="w-full">
+                          <Button variant="destructive" className="w-full btn-enhanced">
                             Reset All Statistics
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="card-interactive">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Reset All Statistics</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className="text-gradient-primary">Reset All Statistics</AlertDialogTitle>
+                            <AlertDialogDescription className="text-readable-muted">
                               This will reset all your statistics including tasks completed, focus sessions, streak, level, and XP. This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleResetAllStats}>Reset All</AlertDialogAction>
+                            <AlertDialogCancel className="btn-enhanced">Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleResetAllStats} className="btn-enhanced">Reset All</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -241,8 +251,8 @@ const Settings = () => {
         {/* Save Changes Button */}
         {hasChanges && (
           <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-10">
-            <Button onClick={handleSaveChanges} className="shadow-lg">
-              <Save className="mr-2 h-4 w-4" />
+            <Button onClick={handleSaveChanges} className="shadow-lg btn-enhanced">
+              <Save className="mr-2 h-4 w-4 transition-all duration-300 hover:scale-110" />
               Save Changes
             </Button>
           </div>
