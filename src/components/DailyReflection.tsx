@@ -93,14 +93,14 @@ const DailyReflection: React.FC<DailyReflectionProps> = ({ date, onSave }) => {
   };
 
   return (
-    <Card>
+    <Card className="card-interactive">
       <CardHeader>
-        <CardTitle>Daily Reflection</CardTitle>
+        <CardTitle className="text-gradient-primary">Daily Reflection</CardTitle>
         <CardDescription>{formatDate(date)}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 stagger-fade-in">
         <div>
-          <label className="text-sm font-medium mb-1 block">What went well today?</label>
+          <label className="text-sm font-medium mb-1 block text-readable">What went well today?</label>
           <Textarea
             placeholder="List your wins and accomplishments..."
             value={wins}
@@ -110,7 +110,7 @@ const DailyReflection: React.FC<DailyReflectionProps> = ({ date, onSave }) => {
         </div>
         
         <div>
-          <label className="text-sm font-medium mb-1 block">What could be improved?</label>
+          <label className="text-sm font-medium mb-1 block text-readable">What could be improved?</label>
           <Textarea
             placeholder="Areas to focus on tomorrow..."
             value={improvements}
@@ -120,11 +120,11 @@ const DailyReflection: React.FC<DailyReflectionProps> = ({ date, onSave }) => {
         </div>
       </CardContent>
       <CardFooter className="flex gap-2">
-        <Button onClick={handleSave} className="flex-1">Save Reflection</Button>
+        <Button onClick={handleSave} className="flex-1 btn-enhanced">Save Reflection</Button>
         <Button 
           onClick={handleReset} 
           variant="outline" 
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 btn-enhanced"
         >
           <RotateCcw size={16} />
           Reset Day

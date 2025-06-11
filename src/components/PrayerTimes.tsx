@@ -65,13 +65,13 @@ const PrayerTimes: React.FC<PrayerTimesProps> = ({ onPrayerComplete }) => {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full card-interactive">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-base font-medium">Daily Prayers</CardTitle>
+          <CardTitle className="text-base font-medium text-gradient-primary">Daily Prayers</CardTitle>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
+              <Button variant="outline" size="sm" className="h-8 btn-enhanced">
                 <RefreshCcw className="h-3.5 w-3.5 mr-1" />
                 Reset
               </Button>
@@ -92,11 +92,11 @@ const PrayerTimes: React.FC<PrayerTimesProps> = ({ onPrayerComplete }) => {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <ul className="space-y-2">
+        <ul className="space-y-2 stagger-fade-in">
           {prayers.map((prayer, index) => (
-            <li key={prayer.name} className="flex items-center justify-between p-2 rounded-md border">
+            <li key={prayer.name} className="flex items-center justify-between p-2 rounded-md border hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
               <div>
-                <div className="font-medium">{prayer.name}</div>
+                <div className="font-medium text-readable">{prayer.name}</div>
                 <div className="text-sm text-muted-foreground">{prayer.time}</div>
               </div>
               <div className="flex items-center space-x-2">
@@ -104,9 +104,9 @@ const PrayerTimes: React.FC<PrayerTimesProps> = ({ onPrayerComplete }) => {
                   type="checkbox"
                   checked={prayer.completed}
                   onChange={() => handleTogglePrayer(index)}
-                  className="h-4 w-4 rounded border-gray-300"
+                  className="h-4 w-4 rounded border-gray-300 transition-all duration-300 hover:scale-110"
                 />
-                <span className={`text-xs ${prayer.completed ? 'text-green-600' : 'text-amber-600'}`}>
+                <span className={`text-xs transition-colors duration-300 ${prayer.completed ? 'text-green-600' : 'text-amber-600'}`}>
                   {prayer.completed ? 'Completed' : 'Due'}
                 </span>
               </div>

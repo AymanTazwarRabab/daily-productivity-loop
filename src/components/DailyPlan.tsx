@@ -119,9 +119,9 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
   const completedTasks = tasks.filter(t => t.completed).length;
 
   return (
-    <Card>
+    <Card className="card-interactive">
       <CardHeader>
-        <CardTitle>Today's Plan</CardTitle>
+        <CardTitle className="text-gradient-primary">Today's Plan</CardTitle>
         <CardDescription>{formatDate(date)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -135,7 +135,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
                 onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
               />
             </div>
-            <Button onClick={handleAddTask}>
+            <Button onClick={handleAddTask} className="btn-enhanced">
               <Plus size={16} className="mr-1" />
               Add
             </Button>
@@ -160,7 +160,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
           
           {/* Active Tasks */}
           {tasks.filter(task => !task.completed).length > 0 && (
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-4 stagger-fade-in">
               <h5 className="text-xs font-medium text-muted-foreground">Active Tasks</h5>
               {tasks
                 .filter(task => !task.completed)
@@ -177,7 +177,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive btn-enhanced"
                       onClick={() => handleRemoveTask(task.id)}
                     >
                       <Trash2 size={16} />
@@ -189,7 +189,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
           
           {/* Completed Tasks */}
           {completedTasks > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-2 stagger-fade-in">
               <h5 className="text-xs font-medium text-muted-foreground">Completed Tasks</h5>
               {tasks
                 .filter(task => task.completed)
@@ -205,7 +205,7 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
                     <Button 
                       size="sm" 
                       variant="ghost" 
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive btn-enhanced"
                       onClick={() => handleRemoveTask(task.id)}
                     >
                       <Trash2 size={16} />
@@ -227,7 +227,9 @@ const DailyPlan: React.FC<DailyPlanProps> = ({ date, onTaskComplete, onAddTask }
           {tasks.filter(t => t.completed).length} of {tasks.length} completed
         </p>
         {tasks.length > 0 && tasks.every(t => t.completed) && (
-          <div className="stats-pill">All done! 🎉</div>
+          <div className="bg-primary/10 backdrop-blur-sm text-primary text-xs rounded-full px-3 py-1 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+            All done! 🎉
+          </div>
         )}
       </CardFooter>
     </Card>
