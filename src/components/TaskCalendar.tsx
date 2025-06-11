@@ -167,13 +167,13 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
   };
 
   return (
-    <Card className="h-fit w-full md:w-auto">
+    <Card className="h-fit w-full md:w-auto card-interactive">
       <CardHeader className="pb-3">
-        <CardTitle className="flex justify-between items-center text-base font-medium">
+        <CardTitle className="flex justify-between items-center text-base font-medium text-gradient-primary">
           <span>Task Calendar</span>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
+              <Button variant="outline" size="sm" className="h-8 btn-enhanced">
                 <CalendarIcon className="h-3.5 w-3.5 mr-1" />
                 {format(date, "MMM yyyy")}
               </Button>
@@ -192,7 +192,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
           </Popover>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 stagger-fade-in">
         <div className="grid gap-4 grid-cols-1">
           <Calendar
             mode="single"
@@ -210,19 +210,19 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
           />
           
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">Tasks for {format(date, "MMM d")}</h3>
+            <h3 className="text-sm font-medium text-readable">Tasks for {format(date, "MMM d")}</h3>
             <div className="max-h-[200px] overflow-y-auto space-y-1">
               {getTasksForDate(date).length > 0 ? (
                 getTasksForDate(date).map(task => (
-                  <div key={task.id} className="flex items-center justify-between py-1 px-2 border rounded-md text-sm">
+                  <div key={task.id} className="flex items-center justify-between py-1 px-2 border rounded-md text-sm hover:border-border/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-md">
                     <div className="flex items-center flex-1">
                       <input 
                         type="checkbox"
                         checked={task.completed}
                         onChange={(e) => handleTaskToggle(task.id, e.target.checked)}
-                        className="mr-2"
+                        className="mr-2 transition-all duration-300 hover:scale-110"
                       />
-                      <span className={task.completed ? "line-through text-muted-foreground" : ""}>
+                      <span className={task.completed ? "line-through text-muted-foreground" : "text-readable"}>
                         {task.title}
                       </span>
                     </div>
@@ -233,7 +233,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
                       {task.completed && <Badge variant="outline" className="bg-green-100 text-xs">Done</Badge>}
                       <button 
                         onClick={() => handleDeleteTask(task.id)}
-                        className="text-destructive hover:text-destructive/80 text-sm"
+                        className="text-destructive hover:text-destructive/80 text-sm transition-all duration-300 hover:scale-110"
                         aria-label="Delete task"
                       >
                         ×
@@ -251,7 +251,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
             <Button 
               variant="outline" 
               size="sm"
-              className="w-full" 
+              className="w-full btn-enhanced" 
               onClick={() => setIsAddTaskDialogOpen(true)}
             >
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Task
@@ -268,7 +268,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div>
-              <label htmlFor="task-title" className="text-sm font-medium block mb-1">
+              <label htmlFor="task-title" className="text-sm font-medium block mb-1 text-readable">
                 Task Title
               </label>
               <Input
@@ -281,7 +281,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
             </div>
             
             <div>
-              <label htmlFor="task-priority" className="text-sm font-medium block mb-1">
+              <label htmlFor="task-priority" className="text-sm font-medium block mb-1 text-readable">
                 Priority
               </label>
               <Select 
@@ -300,10 +300,10 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ onAddTask, onTaskComplete }
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsAddTaskDialogOpen(false)} className="btn-enhanced">
               Cancel
             </Button>
-            <Button onClick={handleAddTask}>Add Task</Button>
+            <Button onClick={handleAddTask} className="btn-enhanced">Add Task</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
