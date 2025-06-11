@@ -12,21 +12,27 @@
   --reseda-green: #7f9172;
   --hookers-green: #567568;
   
+  /* Teal Gradient Colors */
+  --teal-dark: #0f766e;
+  --teal-medium: #14b8a6;
+  --teal-light: #5eead4;
+  --teal-very-light: #ccfbf1;
+  
   /* Enhanced Theme Colors with proper contrast */
   --background: 0 0% 98%;
-  --foreground: 155 15% 25%; /* darker hookers-green for better readability */
+  --foreground: 155 15% 15%; /* Much darker for better readability */
   --card: 0 0% 100%;
-  --card-foreground: 155 15% 25%;
+  --card-foreground: 155 15% 15%; /* Much darker for better readability */
   --popover: 0 0% 100%;
-  --popover-foreground: 155 15% 25%;
+  --popover-foreground: 155 15% 15%;
   --primary: 155 15% 40%; /* hookers-green */
   --primary-foreground: 0 0% 98%;
   --secondary: 203 24% 87%; /* alice-blue */
-  --secondary-foreground: 155 15% 25%;
+  --secondary-foreground: 155 15% 15%;
   --muted: 330 18% 74%; /* thistle */
-  --muted-foreground: 155 15% 35%;
+  --muted-foreground: 155 15% 25%; /* Darker for better readability */
   --accent: 2 18% 64%; /* rosy-brown */
-  --accent-foreground: 155 15% 25%;
+  --accent-foreground: 155 15% 15%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
   --border: 214.3 31.8% 82%;
@@ -36,22 +42,22 @@
 }
 
 .dark {
-  --background: 155 15% 8%;
-  --foreground: 203 24% 87%;
-  --card: 155 15% 10%;
-  --card-foreground: 203 24% 87%;
-  --popover: 155 15% 10%;
-  --popover-foreground: 203 24% 87%;
+  --background: 0 0% 3.9%; /* Pure black background */
+  --foreground: 0 0% 98%; /* Very light text for contrast */
+  --card: 0 0% 3.9%;
+  --card-foreground: 0 0% 98%; /* Very light text for contrast */
+  --popover: 0 0% 3.9%;
+  --popover-foreground: 0 0% 98%;
   --primary: 203 24% 87%; /* alice-blue in dark mode */
-  --primary-foreground: 155 15% 10%;
+  --primary-foreground: 0 0% 3.9%;
   --secondary: 155 15% 20%; /* darker hookers-green in dark mode */
-  --secondary-foreground: 203 24% 87%;
+  --secondary-foreground: 0 0% 98%;
   --muted: 95 12% 35%; /* darker reseda-green in dark mode */
-  --muted-foreground: 203 24% 70%;
+  --muted-foreground: 0 0% 80%; /* Much lighter for better readability */
   --accent: 330 18% 74%; /* thistle in dark mode */
-  --accent-foreground: 155 15% 10%;
+  --accent-foreground: 0 0% 3.9%;
   --destructive: 0 62.8% 50%;
-  --destructive-foreground: 203 24% 87%;
+  --destructive-foreground: 0 0% 98%;
   --border: 155 15% 20%;
   --input: 155 15% 20%;
   --ring: 2 18% 64%; /* rosy-brown in dark mode */
@@ -150,42 +156,76 @@
 @layer components {
   /* Text utilities for better readability */
   .text-readable {
-    @apply text-foreground;
+    @apply text-foreground font-medium;
+    color: hsl(var(--foreground)) !important; /* Force high contrast */
   }
   
   .text-readable-muted {
-    @apply text-muted-foreground;
+    @apply text-muted-foreground font-medium;
+    color: hsl(var(--muted-foreground)) !important; /* Force visibility */
   }
   
   .text-primary-readable {
-    @apply text-primary font-medium;
+    @apply text-foreground font-semibold;
+    color: hsl(var(--foreground)) !important; /* Force high contrast */
   }
   
   .text-accent-readable {
-    @apply text-accent-foreground;
-    color: hsl(var(--accent));
+    @apply text-foreground font-medium;
+    color: hsl(var(--foreground)) !important;
   }
   
   /* Gradient text with fallback */
   .text-gradient-primary {
-    @apply text-primary;
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    @apply text-foreground font-bold;
+    color: hsl(var(--foreground)) !important; /* Force high contrast */
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--primary)));
     background-clip: text;
     -webkit-background-clip: text;
   }
   
   .text-gradient-accent {
-    @apply text-accent;
-    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+    @apply text-foreground font-bold;
+    color: hsl(var(--foreground)) !important; /* Force high contrast */
+    background: linear-gradient(135deg, hsl(var(--foreground)), hsl(var(--accent)));
     background-clip: text;
     -webkit-background-clip: text;
   }
   
-  /* Card Hover Effects */
+  /* Card Hover Effects with Teal Gradient Theme */
   .card-interactive {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    /* Light mode: Teal gradient from dark to light (top-left to bottom-right) */
+    background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-medium) 35%, var(--teal-light) 70%, var(--teal-very-light) 100%);
+    /* Ensure text is always visible */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Dark mode: Same teal gradient but with black background override */
+  .dark .card-interactive {
+    background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-medium) 35%, var(--teal-light) 70%, var(--teal-very-light) 100%);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Text colors for card-interactive to ensure visibility */
+  .card-interactive .text-readable,
+  .card-interactive .text-primary-readable,
+  .card-interactive .text-accent-readable,
+  .card-interactive .text-gradient-primary,
+  .card-interactive .text-gradient-accent {
+    color: white !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card-interactive .text-readable-muted {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
   
   .card-interactive::before {
@@ -205,7 +245,7 @@
   
   .card-interactive:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 40px rgba(15, 118, 110, 0.3);
   }
   
   /* Enhanced Button Styles */
@@ -248,7 +288,7 @@
   
   /* Progress Bar Enhancements */
   .progress-enhanced {
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
     background-size: 200% 100%;
     animation: gradient-shift 2s linear infinite;
   }
@@ -266,7 +306,7 @@
     left: 50%;
     width: 0;
     height: 2px;
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    background: linear-gradient(90deg, var(--teal-medium), var(--teal-light));
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateX(-50%);
   }
@@ -300,10 +340,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(135deg, var(--teal-dark), var(--teal-medium));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+  background: linear-gradient(135deg, var(--teal-medium), var(--teal-light));
 }

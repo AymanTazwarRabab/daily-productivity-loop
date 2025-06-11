@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Check, Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -60,17 +59,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName, date }) => 
               {formatDate(date)}
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center">
             <div className="flex items-center bg-secondary/30 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/50 hover:bg-secondary/40 transition-all duration-300">
               <Clock size={16} className="mr-2 text-primary" />
-              <span className="font-mono text-lg font-semibold text-primary-readable">
+              <span className="font-mono text-lg font-semibold text-foreground">
                 {formatTime(currentTime)}
               </span>
             </div>
-            <Button className="btn-enhanced bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-              <Check size={16} className="mr-2" /> 
-              Check In
-            </Button>
           </div>
         </div>
       </CardContent>

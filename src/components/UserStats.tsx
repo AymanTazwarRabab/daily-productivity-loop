@@ -27,15 +27,15 @@ const UserStats: React.FC<UserStatsProps> = (props) => {
   const progressPercent = (xp / xpForNextLevel) * 100;
 
   const statItems = [
-    { value: streak, label: 'Day Streak', color: 'text-accent' },
-    { value: tasksCompleted, label: 'Tasks Done', color: 'text-primary' },
-    { value: focusSessions, label: 'Focus Sessions', color: 'text-muted-foreground' },
+    { value: streak, label: 'Day Streak', color: 'text-white' },
+    { value: tasksCompleted, label: 'Tasks Done', color: 'text-white' },
+    { value: focusSessions, label: 'Focus Sessions', color: 'text-white' },
   ];
 
   return (
     <Card className="card-interactive">
       <CardHeader>
-        <CardTitle className="text-gradient-primary">
+        <CardTitle className="text-white font-bold text-xl">
           Your Progress
         </CardTitle>
       </CardHeader>
@@ -43,10 +43,10 @@ const UserStats: React.FC<UserStatsProps> = (props) => {
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <span className="text-lg font-bold text-primary-readable">
+              <span className="text-lg font-bold text-white">
                 Level {level}
               </span>
-              <div className="bg-primary/10 backdrop-blur-sm text-primary text-xs rounded-full px-3 py-1 border border-primary/30 hover:border-primary/50 transition-all duration-300">
+              <div className="bg-white/20 backdrop-blur-sm text-white text-xs rounded-full px-3 py-1 border border-white/30 hover:border-white/50 transition-all duration-300 font-semibold">
                 {xp} / {xpForNextLevel} XP
               </div>
             </div>
@@ -54,10 +54,10 @@ const UserStats: React.FC<UserStatsProps> = (props) => {
           <div className="relative">
             <Progress 
               value={progressPercent} 
-              className="h-3 bg-secondary/50 border border-border/30 overflow-hidden" 
+              className="h-3 bg-white/20 border border-white/30 overflow-hidden" 
             />
             <div 
-              className="absolute top-0 left-0 h-full bg-primary rounded-full transition-all duration-500 ease-out"
+              className="absolute top-0 left-0 h-full bg-white rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -67,12 +67,12 @@ const UserStats: React.FC<UserStatsProps> = (props) => {
           {statItems.map((item, index) => (
             <div 
               key={item.label}
-              className="flex flex-col items-center p-3 rounded-lg bg-secondary/20 border border-border/30 hover:border-border/50 transition-all duration-300 hover:scale-105 hover:shadow-lg group"
+              className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-lg group backdrop-blur-sm"
             >
-              <span className={`text-2xl font-bold ${item.color} group-hover:scale-110 transition-transform duration-300`}>
+              <span className={`text-2xl font-bold text-white group-hover:scale-110 transition-transform duration-300`}>
                 {item.value}
               </span>
-              <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors duration-300 text-center">
+              <span className="text-xs text-white/90 group-hover:text-white transition-colors duration-300 text-center font-medium">
                 {item.label}
               </span>
             </div>
